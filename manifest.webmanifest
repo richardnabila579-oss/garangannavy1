@@ -1,0 +1,16 @@
+{
+  "name": "Financial Battle Simulation TNI AL",
+  "short_name": "FBS TNI AL",
+  "description": "Modul latihan keuangan operasi laut Garangan Koarmada 1.",
+  "lang": "id",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07141b",
+  "theme_color": "#07141b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

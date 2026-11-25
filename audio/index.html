@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Modul latihan keuangan operasi laut Garangan Koarmada 1: video animasi, simulasi, dan laporan penilaian.">
+<meta name="theme-color" content="#07141b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Financial Battle Simulation TNI AL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Big+Shoulders+Display:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+/* VOICE: briefing anjungan KRI yang tegang, cepat, berwibawa; showreel motion design.
+   IDEA: layar radar CIC + map Wabku: siklus pelayaran dari PP sampai pengakhiran layar.
+   PICTURE: radar dengan siluet KRI di hero; garis siklus berlayar; video animasi SVG tiap misi.
+   COLOUR and TYPE: laut malam biru-petrol, pasir, oranye sinyal; Big Shoulders Display + Archivo.
+   LAYOUT: hero penuh, pita ticker miring, siklus 5 fase, misi bergantian, laporan akhir. */
+:root{color-scheme:dark;--bg:#07141b;--bg2:#0b1b24;--card:#102530;--ol:#14394a;--kh:#d9c99a;--ink:#eef1ee;--mute:#9fb0b5;--acc:#ff5a1f;--ok:#a6d66f;--bad:#ff6b5a;--line:rgba(238,241,238,.14);--fd:'Big Shoulders Display',Impact,'Arial Narrow',sans-serif;--fb:'Archivo',system-ui,sans-serif}
+:root{--topbg:rgba(7,20,27,.86);--hero1:#0f3446;--stroke:rgba(238,241,238,.08);--sand:#d9c99a}
+:root[data-mode=light]{color-scheme:light;--bg:#eef3f4;--bg2:#e2eaed;--card:#ffffff;--ol:#cfdde2;--kh:#7c5f12;--ink:#0b1d26;--mute:#4a5f68;--acc:#e24a12;--ok:#2f7a12;--bad:#c0321f;--line:rgba(11,29,38,.14);--topbg:rgba(238,243,244,.88);--hero1:#bcd7e1;--stroke:rgba(11,29,38,.09)}
+.player,.fpanel{--bg:#07141b;--bg2:#0b1b24;--card:#102530;--ink:#eef1ee;--mute:#9fb0b5;--line:rgba(238,241,238,.14);--kh:#d9c99a;--acc:#ff5a1f;color:var(--ink)}
+*{box-sizing:border-box;min-width:0}
+html{scroll-behavior:smooth;scroll-padding-top:72px;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--fb);overflow-x:clip}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto;position:relative}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--acc);outline-offset:3px}
+.scroll{overflow-x:auto}.scroll a{flex:none}
+.fig{position:relative;min-height:340px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* nav */
+.top{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;padding:10px max(5vw,16px);background:var(--topbg);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{font:900 22px/1 var(--fd);letter-spacing:.02em;text-decoration:none;color:var(--ink);white-space:nowrap}
+.brand b{color:var(--acc)}
+.links{display:flex;gap:4px;flex:1;scrollbar-width:none}
+.links a{color:var(--mute);text-decoration:none;font-weight:600;font-size:14px;padding:12px 12px;border-radius:8px;white-space:nowrap}
+.links a:hover{color:var(--ink);background:var(--card)}
+.pill{white-space:nowrap;font:800 15px/1 var(--fb);background:var(--acc);color:#120a05;padding:10px 14px;border-radius:99px;text-decoration:none}
+
+/* hero */
+.hero{position:relative;min-height:min(92svh,940px);display:grid;align-items:end;padding:64px max(5vw,16px) 64px;overflow:hidden;background:radial-gradient(120% 90% at 80% 30%,var(--hero1) 0%,var(--bg) 60%)}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(80% 80% at 70% 40%,#000 20%,transparent 75%);opacity:.5}
+.radar{position:absolute;right:-6vw;top:46%;width:min(66vw,820px);aspect-ratio:1;transform:translateY(-50%);z-index:1}
+.radar svg{width:100%;height:100%;overflow:visible}
+.sweep{transform-origin:400px 400px;animation:spin 4.5s linear infinite}
+.ring{transform-origin:400px 400px;animation:spin 40s linear infinite reverse}
+.blip{animation:blip 2.2s ease-out infinite;transform-box:fill-box;transform-origin:center}
+.hero .in{position:relative;z-index:2;max-width:1240px;width:100%;margin:0 auto}
+.kick{font:600 15px/1.3 var(--fb);color:var(--kh);margin:0 0 18px;display:flex;gap:10px;align-items:center}
+.kick::before{content:"";width:46px;height:3px;background:var(--acc)}
+h1{font:900 clamp(48px,13.5vw,200px)/.82 var(--fd);margin:0;text-transform:uppercase}
+h1 .w{display:block;overflow:hidden;padding-top:.04em;white-space:nowrap}
+h1 .w span{display:inline-block;transform:translateY(110%);animation:up .9s cubic-bezier(.2,.9,.2,1) forwards;animation-delay:calc(var(--i)*45ms + var(--d,0ms))}
+h1 .out span{color:transparent;-webkit-text-stroke:2px var(--ink)}
+h1 .w.slash{position:relative}
+h1 .w.slash::after{content:"";position:absolute;left:0;top:52%;height:.16em;width:100%;background:var(--acc);transform:scaleX(0);transform-origin:left;animation:bar 1s .9s cubic-bezier(.7,0,.2,1) forwards;mix-blend-mode:screen}
+.hrow{display:flex;flex-wrap:wrap;gap:22px 40px;align-items:flex-end;margin-top:28px}
+.hrow p{max-width:46ch;margin:0;color:var(--mute);font-size:17px}
+.count{font:800 clamp(34px,5vw,56px)/1 var(--fd);white-space:nowrap}
+.count small{display:block;font:600 13px/1.4 var(--fb);color:var(--kh);margin-bottom:6px}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border-radius:99px;border:0;background:var(--acc);color:#140a04;font-weight:800;text-decoration:none;transition:transform .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
+
+/* ticker */
+.tick{background:var(--acc);color:#140a04;transform:rotate(-2deg);margin:-26px -20px 0;position:relative;z-index:5;overflow:hidden;padding:14px 0}
+.tick div{display:flex;width:max-content;animation:mq 26s linear infinite;font:900 clamp(26px,3.4vw,40px)/1 var(--fd);text-transform:uppercase;white-space:nowrap}
+.tick span{padding:0 28px}.tick span::after{content:"";display:inline-block;width:.5em;height:.5em;background:#140a04;margin-left:56px;transform:rotate(45deg) translateY(-.08em)}
+
+/* brief */
+.brief{background:var(--bg)}
+.brief h2,.final h2{font:900 clamp(36px,5vw,52px)/1.02 var(--fd);margin:0 0 14px;text-wrap:balance;text-transform:uppercase}
+.brief p.lead{max-width:62ch;color:var(--mute);font-size:17px;margin:0 0 34px}
+.comps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;background:var(--line);border:2px solid var(--line)}
+.comp{background:var(--bg);padding:22px 18px 24px;position:relative;overflow:hidden}
+.comp b{display:block;font:900 clamp(24px,2.5vw,36px)/1 var(--fd);text-transform:uppercase}
+.comp span{display:block;color:var(--mute);font-size:14px;margin-top:8px}
+.comp i{position:absolute;left:0;bottom:0;height:4px;width:100%;background:var(--acc);transform:scaleX(0);transform-origin:left;transition:transform 1.1s cubic-bezier(.7,0,.2,1)}
+.in-v .comp i{transform:scaleX(1)}
+.comp:nth-child(2) i{transition-delay:.12s}.comp:nth-child(3) i{transition-delay:.24s}.comp:nth-child(4) i{transition-delay:.36s}.comp:nth-child(5) i{transition-delay:.48s}
+
+/* module */
+.mod{position:relative;overflow:hidden;overflow:clip;border-top:1px solid var(--line)}
+.mod:nth-of-type(even){background:var(--bg2)}
+.bgword{position:absolute;top:10px;left:0;font:900 clamp(120px,22vw,320px)/.9 var(--fd);color:transparent;-webkit-text-stroke:1.5px var(--stroke);white-space:nowrap;pointer-events:none;text-transform:uppercase;will-change:transform}
+.mhead{display:flex;gap:18px;align-items:baseline;flex-wrap:wrap;margin-bottom:22px;position:relative}
+.tag{font:800 14px/1 var(--fb);color:#140a04;background:var(--sand);padding:8px 12px;border-radius:4px;white-space:nowrap}
+.mhead h2{font:900 clamp(30px,5.4vw,52px)/1.02 var(--fd);margin:0;overflow-wrap:break-word;hyphens:auto;text-transform:uppercase;text-wrap:balance;flex:1 1 420px}
+.mgrid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,3vw,44px);align-items:start;position:relative}
+.mtext p{margin:0 0 16px;color:var(--mute);max-width:62ch}
+.keys{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.keys li{padding:12px 14px 12px 16px;background:var(--card);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;font-size:15px}
+.keys li b{display:block;font-weight:800}
+.rv{clip-path:inset(0 100% 0 0);transition:clip-path 1s cubic-bezier(.7,0,.2,1)}
+.in-v .rv{clip-path:inset(0 0 0 0)}
+
+/* player */
+.player{background:#050e13;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 30px 60px -30px #000}
+.screen{position:relative;aspect-ratio:16/9;background:#06121a}
+.screen>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cap{padding:12px 16px;min-height:3.6em;font:600 15px/1.45 var(--fb);border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.cap::before{content:"";flex:none;width:10px;height:10px;margin-top:.4em;border-radius:50%;background:var(--acc)}
+.big{position:absolute;inset:0;margin:auto;width:84px;height:84px;border-radius:50%;border:0;background:var(--acc);display:grid;place-items:center;transition:transform .25s,opacity .25s;box-shadow:0 0 0 14px rgba(255,90,31,.18)}
+.big:hover{transform:scale(1.08)}
+.player.on .big{opacity:0;pointer-events:none;transform:scale(.6)}
+.ctrl{display:flex;align-items:center;gap:12px;padding:8px 12px;border-top:1px solid var(--line)}
+.pp{width:44px;height:44px;border-radius:50%;border:0;background:var(--card);display:grid;place-items:center;flex:none}
+.track{flex:1;height:44px;position:relative;cursor:pointer;touch-action:none}
+.track::before{content:"";position:absolute;left:0;right:0;top:20px;height:4px;background:var(--line);border-radius:2px}
+.track .fill{position:absolute;left:0;top:20px;height:4px;background:var(--acc);border-radius:2px}
+.track .mk{position:absolute;top:16px;width:2px;height:12px;background:var(--kh)}
+.tm{font:600 13px/1 var(--fb);color:var(--mute);white-space:nowrap;font-variant-numeric:tabular-nums}
+.chaps{display:flex;gap:6px;padding:0 12px 12px;overflow-x:auto;scrollbar-width:none}
+.chaps button{flex:none;border:1px solid var(--line);background:transparent;border-radius:99px;padding:0 12px;min-height:36px;font-size:13px;color:var(--mute)}
+.chaps button.cur{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* sim shell */
+.sim{margin-top:clamp(24px,3vw,40px);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(16px,2.4vw,28px);position:relative}
+.simh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:16px}
+.simh h3{font:800 clamp(24px,2.6vw,32px)/1.05 var(--fd);margin:0;text-transform:uppercase}
+.simh small{color:var(--mute);font-size:13px}
+.note{color:var(--mute);font-size:13px;margin:12px 0 0}
+.brieft{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.brieft div{background:var(--bg);border-radius:8px;padding:12px}
+.brieft b{display:block;font:900 32px/1 var(--fd)}
+.brieft span{font-size:13px;color:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;font-weight:600;color:var(--mute);font-size:13px;padding:8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+td input,.dr-in input{width:100%;max-width:150px;min-height:44px;font:600 16px var(--fb);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:0 10px;text-align:right}
+td.okc input{border-color:var(--ok)}td.badc input{border-color:var(--bad)}
+.hint{display:block;font-size:12px;color:var(--bad);margin-top:4px;text-align:right}
+.hint.g{color:var(--ok)}
+.tot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}
+.tot div{background:var(--bg);border-radius:8px;padding:12px}
+.tot span{font-size:13px;color:var(--mute)}.tot b{display:block;font:800 clamp(22px,2.6vw,30px)/1.1 var(--fd);white-space:nowrap}
+.meter{height:12px;background:var(--bg);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.meter i{display:block;height:100%;background:var(--kh);width:0;transition:width .4s,background .3s}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.res{margin-top:14px;font-weight:600}
+.res.g{color:var(--ok)}.res.b{color:var(--bad)}
+
+/* drill */
+.dr-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.clock b{font:900 46px/1 var(--fd);font-variant-numeric:tabular-nums;display:block}
+.clock span{font-size:12px;color:var(--mute)}
+.clock.hot b{color:var(--acc);animation:pulse .6s ease-in-out infinite alternate}
+.dr-bar{flex:1 1 160px;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.dr-bar i{display:block;height:100%;width:100%;background:var(--acc);transform-origin:left;transition:transform 1s linear}
+.dr-n{font-size:14px;color:var(--mute);white-space:nowrap}
+.dr-q{font:800 clamp(22px,2.6vw,30px)/1.15 var(--fd);margin:0 0 16px;max-width:40ch;text-wrap:balance}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;min-height:52px;padding:12px 16px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:15px;transition:transform .15s,border-color .15s}
+.opt:hover:not(:disabled){border-color:var(--kh);transform:translateX(4px)}
+.opt.g{border-color:var(--ok);background:rgba(166,214,111,.12)}.opt.b{border-color:var(--bad);background:rgba(255,107,90,.12)}
+.opts.tf{grid-template-columns:1fr 1fr}.opts.tf .opt{text-align:center;font:900 28px/1 var(--fd);text-transform:uppercase}
+.dr-in{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.dr-in input{max-width:220px}
+.fb{margin-top:14px;padding:12px 14px;border-radius:8px;background:var(--bg);font-size:15px}
+.fb b{display:block}.fb.g b{color:var(--ok)}.fb.b b{color:var(--bad)}
+.sumg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:14px 0}
+.sumg div{background:var(--bg);border-radius:8px;padding:12px}.sumg b{display:block;font:900 34px/1 var(--fd)}.sumg span{font-size:13px;color:var(--mute)}
+.anim-in{animation:slide .45s cubic-bezier(.2,.9,.2,1)}
+
+/* documents */
+.docs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.paper{background:#ecebe2;color:#1b1d15;border-radius:6px;padding:16px;font-size:14px;box-shadow:0 18px 30px -20px #000;position:relative}
+.paper:nth-child(1){transform:rotate(-1deg)}.paper:nth-child(3){transform:rotate(1deg)}
+.paper h4{font:900 26px/1 var(--fd);margin:0 0 10px;text-transform:uppercase;border-bottom:2px solid #1b1d15;padding-bottom:8px}
+.paper .l{display:block;font-size:12px;color:#5b5d50;margin-top:8px}
+.fld{display:block;width:100%;text-align:left;border:1px dashed transparent;background:transparent;color:inherit;border-radius:4px;padding:6px 6px;margin:0 -6px;min-height:36px;font-size:14px}
+.fld:hover{border-color:#7a7c6c;background:rgba(0,0,0,.04)}
+.fld.on{border:2px solid var(--acc);background:rgba(255,90,31,.14)}
+.fld.hit{border:2px solid #3f7d18;background:rgba(63,125,24,.16)}
+.fld.miss{border:2px solid #b3261e;background:rgba(179,38,30,.12)}
+.fld.fp{border:2px dashed #b3261e;text-decoration:line-through}
+.sig{display:block;height:28px;border-bottom:1px solid #1b1d15}
+.why{display:block;font-size:12px;color:#7a2a12;font-weight:600}
+
+/* chat */
+.chat{display:grid;gap:10px;max-height:520px;overflow-y:auto;padding:4px 2px 10px}
+.msg{max-width:78%;padding:10px 14px;border-radius:14px;font-size:15px;animation:slide .4s cubic-bezier(.2,.9,.2,1)}
+.msg small{display:block;font-weight:800;font-size:12px;color:var(--kh);margin-bottom:2px}
+.msg.them{background:var(--bg);border-bottom-left-radius:4px}
+.msg.me{background:var(--acc);color:#140a04;justify-self:end;border-bottom-right-radius:4px}
+.msg.me small{color:#3a1a08}
+.msg.sys{justify-self:center;max-width:92%;background:transparent;border:1px solid var(--line);font-size:13px;color:var(--mute);text-align:center}
+.typing{display:inline-flex;gap:4px}.typing i{width:7px;height:7px;border-radius:50%;background:var(--mute);animation:pulse .5s infinite alternate}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+
+/* final */
+.final{background:var(--acc);color:#140a04}
+.intro{background:var(--bg)}
+.intro h2{font:900 clamp(36px,5vw,52px)/1.02 var(--fd);margin:0 0 14px;text-transform:uppercase}
+.intro .lead{max-width:66ch;color:var(--mute);font-size:17px;margin:0 0 28px}
+.igrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px}
+.ibox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(18px,2.4vw,28px);border-top:4px solid var(--acc)}
+.ibox h3{font:800 clamp(24px,2.6vw,32px)/1.05 var(--fd);margin:0 0 14px;text-transform:uppercase}
+.itu{margin:0 0 12px;font-size:15px}.itu b{color:var(--kh)}
+.obj,.refs{margin:0 0 16px;padding-left:1.4em;display:grid;gap:10px;font-size:15px}
+.obj li::marker,.refs li::marker{color:var(--acc);font-weight:800}
+.refs span{display:block;color:var(--mute);font-size:14px;margin-top:4px}
+@media(max-width:900px){.igrid{grid-template-columns:minmax(0,1fr)}}
+.idx{background:var(--bg);border-radius:10px;padding:14px 14px 4px;margin-bottom:18px;border-left:3px solid var(--acc)}
+.idxh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;margin-bottom:6px}.idxh span{font-size:13px;color:var(--mute)}
+.idx table{min-width:520px}.idx tr.hl td{background:rgba(255,90,31,.14)}.idx tr.hl td:first-child{box-shadow:inset 3px 0 var(--acc)}
+.pot{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:0 0 12px;font-size:14px}
+.pot>b{color:var(--acc)}.pot>span{color:var(--mute);margin-right:6px}
+.pot i{font-style:normal;background:var(--card);border-radius:99px;padding:6px 12px;white-space:nowrap}.pot i b{color:var(--kh)}
+#rab td input{max-width:120px}
+.lsdays{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:12px;align-items:end;margin-bottom:14px}
+.lsdays label{display:grid;gap:6px;font-size:14px;color:var(--mute)}
+.lsdays input{min-height:44px;font:600 16px var(--fb);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:0 10px;max-width:160px}
+.lsdays label.okc input,td.okc input{border-color:var(--ok)}.lsdays label.badc input,td.badc input{border-color:var(--bad)}
+.lsdays .hint{text-align:left}
+.days{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;min-height:0}
+.days i{font:900 15px/30px var(--fd);font-style:normal;width:30px;text-align:center;border-radius:4px;background:var(--sand);color:#140a04;opacity:0;transform:translateY(8px);animation:slide .35s var(--d) forwards}
+.days i.s{background:var(--acc)}
+.rk{display:block;font-size:12px;color:var(--mute)}
+@media(max-width:600px){.lsdays{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.lsdays .note{grid-column:1/-1}}
+.snd{position:absolute;right:10px;top:10px;display:none;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:0;border-radius:99px;background:rgba(5,14,19,.82);color:var(--ink);font-weight:800;font-size:14px}
+.player.on.muted .snd{display:none}
+.tg{width:40px;height:40px;flex:none;border-radius:50%;border:1px solid var(--line);background:transparent;display:grid;place-items:center;color:var(--mute)}
+.tg[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.nsk{border-top:1px solid var(--line);padding:0 14px}
+.nsk summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:800;font-size:14px;color:var(--kh)}
+.nsk ol{margin:0 0 12px;padding-left:1.3em;display:grid;gap:10px;font-size:14px}
+.nsk li b{display:block;color:var(--ink);font-size:13px}
+.nsk li{color:var(--mute)}.nsk li.jd{font-style:italic;opacity:.7}.nsk li.now{color:var(--acc)}.nsk li.now b{color:var(--acc)}.cap.idle::before{opacity:.25}.nsk li::marker{color:var(--acc)}
+.nsk .row{padding-bottom:14px}.vo{font-size:12px;color:var(--mute);flex:1 1 220px}
+@media(max-width:600px){.ctrl{flex-wrap:wrap}.track{flex-basis:100%;order:5}}
+.screen{container-type:inline-size;overflow:hidden}
+.fx{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(0,0,0,.55) 100%),linear-gradient(to top,rgba(0,0,0,.7) 0%,rgba(0,0,0,.25) 16%,transparent 30%)}
+.fx::after{content:"";position:absolute;inset:-50%;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain .5s steps(4) infinite}
+.sub{position:absolute;left:6%;right:6%;bottom:5.5%;text-align:center;pointer-events:none;opacity:0}
+.sub span{display:inline-block;max-width:30em;font:600 max(13px,3.15cqw)/1.32 var(--fb);color:#fff;text-wrap:balance;letter-spacing:.005em;text-shadow:0 0 .14em #000,0 .06em .2em #000,0 0 .5em rgba(0,0,0,.6);-webkit-text-stroke:.022em rgba(0,0,0,.85);paint-order:stroke fill}
+.sub.in{animation:subin .28s cubic-bezier(.2,.9,.2,1) forwards}
+.screen::before,.screen::after{content:"";position:absolute;left:0;right:0;height:0;background:#000;z-index:1;transition:height .7s cubic-bezier(.7,0,.2,1)}
+.screen::before{top:0}.screen::after{bottom:0}
+.player.on .screen::before,.player.on .screen::after{height:3.2%}
+.big,.snd{z-index:3}.sub{z-index:2}
+.snd-on .player .snd{display:none!important}@media(max-width:600px){.snd{min-height:32px;padding:0 10px;font-size:12px;gap:6px}.snd svg{width:14px;height:14px}}
+.player .cap{display:none}
+@keyframes subin{from{opacity:0;transform:translateY(.4em);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-5%,3%)}50%{transform:translate(4%,-4%)}75%{transform:translate(-3%,-2%)}100%{transform:translate(2%,5%)}}
+.iconbtn{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid var(--line);background:transparent;display:grid;place-items:center;color:var(--ink)}
+
+
+
+
+[data-mode=light] #rg stop:first-child{stop-color:#a9cbd8}
+.glos{position:relative;overflow:clip;border-top:1px solid var(--line);background:var(--bg)}
+.glos .lead{max-width:62ch;color:var(--mute);font-size:17px;margin:0 0 20px;position:relative}
+.gtools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px;position:relative}
+.gtools input{flex:1 1 260px;min-height:48px;font:500 16px var(--fb);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:0 18px}
+.gcats{display:flex;flex-wrap:wrap;gap:6px}
+.gcats button{min-height:40px;border-radius:99px;border:1px solid var(--line);background:transparent;padding:0 14px;font-size:14px;color:var(--mute)}
+.gcats button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;align-items:start;position:relative}
+.gc{position:relative;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:16px 16px 14px;display:block;width:100%;overflow:hidden;transition:transform .25s cubic-bezier(.2,.9,.2,1),border-color .25s,box-shadow .25s}
+.gc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c,var(--acc));transform:scaleY(.35);transform-origin:top;transition:transform .35s cubic-bezier(.7,0,.2,1)}
+.gc:hover{transform:translateY(-3px);border-color:var(--c,var(--acc))}
+.gc .ab{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.gc .ab b{font:900 clamp(26px,2.6vw,34px)/1 var(--fd);letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gc .ab i{font-style:normal;font-size:12px;font-weight:700;color:var(--c,var(--kh));white-space:nowrap}
+.gc .pl{display:block;font-size:14px;color:var(--mute);margin-top:6px;line-height:1.35;padding-right:26px}
+.gc .ex{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.2,.9,.2,1)}
+.gc .ex>span{overflow:hidden;font-size:15px;line-height:1.5;color:var(--ink)}
+.gc .ex>span::before{content:"";display:block;height:1px;background:var(--line);margin:12px 0 10px}
+.gc .chev{position:absolute;right:14px;bottom:12px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:14px;color:var(--mute);border:1px solid var(--line);transition:transform .3s}
+.gc[aria-expanded=true]{border-color:var(--c,var(--acc));box-shadow:0 22px 40px -26px var(--c,var(--acc));transform:none}
+.gc[aria-expanded=true]::before{transform:scaleY(1)}
+.gc[aria-expanded=true] .ex{grid-template-rows:1fr}
+.gc[aria-expanded=true] .chev{transform:rotate(45deg);color:var(--c,var(--acc));border-color:var(--c,var(--acc))}
+.gc[aria-expanded=true] .pl{color:var(--ink);font-weight:600}
+.gc.pop{animation:gpop .5s cubic-bezier(.2,.9,.2,1)}
+.gempty{color:var(--mute)}
+@media(max-width:600px){.ggrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.gc{padding:12px 12px 12px 14px}.gc .ab b{font-size:24px}.gc .pl{font-size:13px;padding-right:0;padding-bottom:22px}.gc .chev{right:10px;bottom:8px}}
+.gcats .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}
+@keyframes gpop{0%{transform:scale(.97)}60%{transform:scale(1.015)}100%{transform:none}}
+.kri{animation:bob 3s ease-in-out infinite}
+.cyc{background:var(--bg2);border-top:1px solid var(--line)}
+.cyc h2{font:900 clamp(36px,5vw,52px)/1.02 var(--fd);margin:0 0 14px;text-transform:uppercase}
+.cyc .lead{max-width:62ch;color:var(--mute);font-size:17px;margin:0 0 30px}
+.track2{position:relative;padding-top:64px}
+.sea{position:absolute;left:0;right:0;top:0;height:64px;border-bottom:3px dashed rgba(217,201,154,.35)}
+.boat{position:absolute;left:0;bottom:-6px;transform:translateX(-10%)}
+.in-v .boat{animation:sail 6s cubic-bezier(.6,0,.3,1) .3s forwards,bob 3s ease-in-out infinite}
+.phases{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.phases a{display:flex;flex-direction:column;gap:6px;height:100%;padding:18px 16px;background:var(--card);border-radius:12px;color:var(--ink);text-decoration:none;border-top:4px solid var(--kh);transition:transform .2s,border-color .2s}
+.phases a:hover{transform:translateY(-4px);border-color:var(--acc)}
+.phases b{font:900 28px/1 var(--fd);color:var(--acc);white-space:nowrap}
+.phases strong{font-size:16px}
+.phases span{font-size:14px;color:var(--mute);flex:1}
+.phases em{font-style:normal;font-size:13px;font-weight:800;color:var(--kh)}
+@keyframes sail{to{left:100%;transform:translateX(-100%)}}
+@keyframes bob{50%{translate:0 -4px}}
+.final .sub{max-width:60ch;margin:0 0 24px;font-size:17px}
+.fgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:center}
+.fpanel{background:#140a04;color:var(--ink);border-radius:16px;padding:clamp(16px,2.4vw,28px)}
+.fig.rad{min-height:380px}
+.bars{display:grid;gap:12px}
+.bar{display:grid;grid-template-columns:8.5em minmax(0,1fr) 3em;gap:10px;align-items:center;font-size:15px}
+.bar .t{height:12px;background:rgba(239,238,230,.12);border-radius:6px;overflow:hidden}
+.bar .t i{display:block;height:100%;background:var(--acc);width:0;transition:width .8s cubic-bezier(.2,.9,.2,1)}
+.bar b{text-align:right;font-variant-numeric:tabular-nums}
+.verdict{font:900 clamp(32px,4.4vw,48px)/1.02 var(--fd);text-transform:uppercase;margin:18px 0 6px}
+footer{padding:28px max(5vw,16px);color:var(--mute);font-size:13px;border-top:1px solid var(--line)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between}
+
+@keyframes up{to{transform:none}}
+@keyframes bar{to{transform:scaleX(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blip{0%{opacity:1;transform:scale(.6)}70%{opacity:.2;transform:scale(1.6)}100%{opacity:0;transform:scale(1.8)}}
+@keyframes mq{to{transform:translateX(-50%)}}
+@keyframes pulse{to{opacity:.35}}
+@keyframes slide{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+@media(max-width:900px){.phases{grid-template-columns:minmax(0,1fr)}.track2{padding-top:0}.sea{display:none}.mgrid,.fgrid{grid-template-columns:minmax(0,1fr)}.comps{grid-template-columns:repeat(2,minmax(0,1fr))}.comps .comp:last-child{grid-column:1/-1}.docs{grid-template-columns:minmax(0,1fr)}.paper{transform:none!important}}
+@media(max-width:600px){
+ .hero{min-height:auto;padding-top:min(98vw,470px)}
+ .radar{right:auto;left:50%;top:0;width:min(96vw,440px);transform:translateX(-50%)}
+ .links{display:none}.top{justify-content:space-between}
+ .brieft{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tot{grid-template-columns:minmax(0,1fr)}
+ .msg{max-width:92%}
+ .big{width:64px;height:64px}
+ table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute)}.stack td:empty{display:none}.stack td input{max-width:100%;text-align:left}.hint{text-align:left}
+ .bar{grid-template-columns:7em minmax(0,1fr) 2.6em;font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.days i{opacity:1;transform:none}.sub.in{opacity:1}h1 .w span{transform:none}.boat{left:100%;transform:translateX(-100%)}h1 .w.slash::after{transform:scaleX(1)}.rv{clip-path:none}.comp i{transform:scaleX(1)}html{scroll-behavior:auto}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+<script>document.documentElement.dataset.mode='dark';</script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#top">FBS<b>/</b>AL</a>
+  <nav class="links scroll" aria-label="Fase operasi">
+    <a href="#pengantar">Pengantar</a><a href="#siklus">Siklus</a><a href="#misi-persiapan">Persiapan</a><a href="#misi-berlayar">Berlayar</a><a href="#misi-wabku">Wabku</a><a href="#misi-koordinasi">Koordinasi</a><a href="#misi-pengakhiran">Pengakhiran</a><a href="#singkatan">Singkatan</a>
+  </nav>
+  <button class="iconbtn" id="themeBtn" aria-label="Ganti mode terang atau gelap" title="Mode terang/gelap"></button><a class="pill" href="#laporan" id="pill">Skor 0</a>
+</header>
+
+<section class="hero" id="top">
+  <div class="radar" aria-hidden="true">
+    <svg viewBox="0 0 800 800">
+      <defs>
+        <radialGradient id="rg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#123b4d" stop-opacity=".95"/><stop offset="1" stop-color="#07141b" stop-opacity="0"/></radialGradient>
+        <linearGradient id="sw" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff5a1f" stop-opacity="0"/><stop offset="1" stop-color="#ff5a1f" stop-opacity=".55"/></linearGradient>
+        <path id="tp" d="M400 400 m-330 0 a330 330 0 1 1 660 0 a330 330 0 1 1 -660 0"/>
+      </defs>
+      <circle cx="400" cy="400" r="380" fill="url(#rg)" class="rgl"/>
+      <g fill="none" stroke="rgba(217,201,154,.28)" stroke-width="1.5">
+        <circle cx="400" cy="400" r="300"/><circle cx="400" cy="400" r="220"/><circle cx="400" cy="400" r="140"/><circle cx="400" cy="400" r="60"/>
+        <path d="M400 60V740M60 400H740"/>
+      </g>
+      <g class="ring"><text font-family="'Big Shoulders Display',Impact,sans-serif" font-weight="800" font-size="26" style="fill:var(--kh)" letter-spacing="6"><textPath href="#tp">PERINTAH PENDAHULUAN · UUDP · UMO · TNL · LAPSITPERS · BEKAL ULANG · WABKU · UANG LAYAR · LAPSITKAS · </textPath></text></g>
+      <g class="sweep"><path d="M400 400 L700 400 A300 300 0 0 0 612 188 Z" fill="url(#sw)"/><path d="M400 400H700" stroke="#ff5a1f" stroke-width="3"/></g>
+      <g font-family="Archivo,Helvetica,sans-serif" font-weight="800" font-size="17" style="fill:var(--ink)">
+        <circle class="blip" cx="520" cy="270" r="14" fill="none" stroke="#ff5a1f" stroke-width="3"/><circle cx="520" cy="270" r="6" fill="#ff5a1f"/><text x="540" y="262">UMO</text>
+        <circle class="blip" cx="300" cy="320" r="14" fill="none" stroke="#ff5a1f" stroke-width="3" style="animation-delay:.6s"/><circle cx="300" cy="320" r="6" fill="#ff5a1f"/><text x="262" y="306">TNL</text>
+        <circle class="blip" cx="560" cy="520" r="14" fill="none" stroke="#ff5a1f" stroke-width="3" style="animation-delay:1.1s"/><circle cx="560" cy="520" r="6" fill="#ff5a1f"/><text x="580" y="526">BBM</text>
+        <circle class="blip" cx="340" cy="560" r="14" fill="none" stroke="#ff5a1f" stroke-width="3" style="animation-delay:1.6s"/><circle cx="340" cy="560" r="6" fill="#ff5a1f"/><text x="250" y="600">UANG LAYAR</text>
+      </g>
+      <g transform="translate(400 400)" class="kri"><path d="M-70 8 L64 8 L80 -6 L-66 -6 Z M-38 -6 V-18 H-8 V-28 H12 V-18 H26 V-6 Z M0 -50 V-28" style="fill:var(--ink);stroke:var(--ink)" stroke-width="3"/></g>
+    </svg>
+  </div>
+  <div class="in">
+    <p class="kick">Garangan Koarmada 1</p>
+    <h1 aria-label="Financial Battle Simulation">
+      <span class="w" data-t="FINANCIAL" style="--d:0ms"></span>
+      <span class="w out slash" data-t="BATTLE" style="--d:350ms"></span>
+      <span class="w" data-t="SIMULATION" style="--d:650ms"></span>
+    </h1>
+    <div class="hrow">
+      <div class="count"><small>UUDP bekal awal KRI (simulasi)</small>Rp<span id="cnt">0</span></div>
+      <p>Berperan sebagai Kadeplog KRI, dari terbitnya Perintah Pendahuluan, kapal bertolak, perubahan di tengah pelayaran, hingga pengakhiran layar dan Wabku tuntas.</p>
+      <a class="btn" href="#siklus">Lihat siklus operasi
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="3" fill="none"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<div class="tick" aria-hidden="true"><div id="tk"></div></div>
+
+<section class="band intro" id="pengantar">
+  <div class="wrap">
+    <h2>Pengantar</h2>
+    <p class="lead">Financial Battle Simulation adalah sarana latihan bagi personel Garangan Koarmada 1 untuk menguji kemampuan teknis, ketelitian, kecepatan, kepemimpinan, dan integritas dalam tugas keuangan operasi laut, dari terbitnya Perintah Pendahuluan sampai pengakhiran layar.</p>
+    <div class="igrid">
+      <div class="ibox">
+        <h3>Tujuan pelatihan</h3>
+        <p class="itu"><b>Tujuan umum.</b> Personel mampu melaksanakan tugas keuangan operasi laut secara tepat, tertib administrasi, dan dapat dipertanggungjawabkan, sejak persiapan di pangkalan sampai pengakhiran layar.</p>
+        <p class="itu"><b>Tujuan khusus.</b> Setelah menyelesaikan lima misi, personel mampu:</p>
+        <ol class="obj">
+          <li>Menyusun kebutuhan UUDP bekal awal (UMO dan TNL) berdasarkan Perintah Pendahuluan dan indeks TGM Kasal terbaru, termasuk potongan strata Perwira Pertama dan Perwira Menengah.</li>
+          <li>Menangani perubahan kebutuhan anggaran selama berlayar: bekal ulang, pergantian PP, dan dukungan dana di pangkalan singgah.</li>
+          <li>Menyusun dan memeriksa kelengkapan Wabku belanja operasional, Lapsitpers, dan ceklist uang layar.</li>
+          <li>Berkoordinasi dengan Komandan KRI, Kadep Ops, Pasproga Satuan, Pekas, dan pihak terkait sesuai jalur.</li>
+          <li>Menuntaskan pertanggungjawaban pengakhiran layar dalam batas waktu tanpa mengorbankan integritas.</li>
+        </ol>
+        <p class="itu"><b>Cara berlatih.</b> Pelajari siklus operasi, tonton video tiap misi, kerjakan simulasinya, lalu tinjau laporan penilaian di akhir halaman.</p>
+      </div>
+      <div class="ibox">
+        <h3>Daftar referensi</h3>
+        <ol class="refs">
+          <li><b>Akademi Angkatan Laut.</b> <i>Vademecum Taruna AAL Korps Suplai TA 2023.</i> Program Studi Manajemen Logistik dan Keuangan Matra Laut.<span>Bab I Bidang Keuangan: Pengelolaan Anggaran, Sistem Program dan Anggaran, Kelengkapan Pertanggungjawaban Keuangan (Wabku). Bab II Bidang Pembekalan: Prosedur Administrasi Pembekalan di Kapal, yaitu tugas Kadeplog saat KRI di pangkalan, saat berlayar, dan setelah operasi.</span></li>
+          <li><b>Telegram Kasal Nomor T-069/1025 (978/SOPS/1025).</b> Penambahan dukungan anggaran uang layar, uang sandar, uang makan operasi, dan uang taktis non logistik TA 2025.<span>Sumber indeks UMO per rayon, TNL Perwira dan Bintara/Tamtama, uang layar, dan uang sandar dalam simulasi.</span></li>
+          <li>Keputusan Menteri Pertahanan Nomor KEP/576/IV/2024 tanggal 26 April 2024 tentang Norma Indeks Perencanaan Program dan Anggaran Kemhan dan TNI TA 2025.</li>
+          <li>Peraturan Menteri Keuangan Nomor 94/PMK.02/2017 tentang Petunjuk Penyusunan dan Penelaahan RKA-K/L dan Pengesahan DIPA.</li>
+          <li>Peraturan Menteri Pertahanan RI Nomor 4 Tahun 2016 tentang Sistem Akuntansi dan Pelaporan Keuangan Instansi di Lingkungan Kemhan dan TNI.</li>
+          <li>Peraturan Panglima TNI Nomor 5 Tahun 2012 tentang Pedoman Administrasi Umum TNI.</li>
+          <li>Keputusan Panglima TNI Nomor Kep/866/XI/2013 tentang Petunjuk Teknis Tulisan Dinas TNI.</li>
+        </ol>
+        <p class="note">Referensi 3 dirujuk dalam telegram Kasal; referensi 4 sampai 7 dirujuk dalam vademecum. Periksa versi terbarunya sebelum dijadikan acuan resmi. Seluruh angka dalam simulasi bersifat fiktif.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band cyc" id="siklus">
+  <div class="wrap">
+    <h2>Siklus operasi laut</h2>
+    <p class="lead">Lima fase tugas keuangan Kadeplog, disusun mengikuti Tugas Kadeplog di pangkalan, saat berlayar, dan setelah KRI melaksanakan operasi. Ketuk satu fase untuk menuju misinya.</p>
+    <div class="track2">
+      <div class="sea" aria-hidden="true"><svg class="boat" viewBox="-90 -60 180 70" width="120" height="48"><path d="M-80 6 L70 6 L88 -10 L-74 -10 Z M-42 -10 V-24 H-10 V-36 H12 V-24 H28 V-10 Z M0 -58 V-36" fill="#ff5a1f" stroke="#ff5a1f" stroke-width="3"/></svg></div>
+      <ol class="phases">
+        <li><a href="#misi-persiapan"><b>H−15</b><strong>Persiapan di pangkalan</strong><span>PP terbit, UUDP UMO dan TNL diajukan, renbut bekal awal bahan basah 3 hari, PUT BBM.</span><em>Misi 1</em></a></li>
+        <li><a href="#misi-koordinasi"><b>DWA +6 jam</b><strong>Bertolak</strong><span>Lapsitpers disetujui Komandan, dikirim lewat SRAL ke Pangkotama.</span><em>Misi 4</em></a></li>
+        <li><a href="#misi-berlayar"><b>Berlayar</b><strong>Perubahan di laut</strong><span>Bekal ulang diajukan 15 hari sebelum bekal habis; koordinasi pangkalan singgah.</span><em>Misi 2</em></a></li>
+        <li><a href="#misi-wabku"><b>DWD</b><strong>Tiba di pangkalan</strong><span>Berkas Wabku dicoklit; sisa UUDP disetor pada kesempatan pertama.</span><em>Misi 3</em></a></li>
+        <li><a href="#misi-pengakhiran"><b>≤ 30 hari</b><strong>Pengakhiran layar</strong><span>Wabku UUDP tuntas, Lapsitkas bulanan T+5, ceklist uang layar.</span><em>Misi 5</em></a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="band brief">
+  <div class="wrap">
+    <h2>Lima kompetensi diuji sekaligus</h2>
+    <p class="lead">Setiap keputusan memberi nilai pada kompetensi tertentu. Hasil terkumpul di laporan penilaian di akhir halaman.</p>
+    <div class="comps" id="comps">
+      <div class="comp"><b>Teknis</b><span>Menghitung UUDP dengan rumus personel × indeks × hari berlayar.</span><i></i></div>
+      <div class="comp"><b>Ketelitian</b><span>Menemukan cacat pada ceklist uang layar, nota, dan Lapsitpers.</span><i></i></div>
+      <div class="comp"><b>Kecepatan</b><span>Memutuskan tepat saat batas waktu laporan berjalan.</span><i></i></div>
+      <div class="comp"><b>Kepemimpinan</b><span>Mengatur koordinasi Komandan, Kadep Ops, Pasproga, dan Pekas.</span><i></i></div>
+      <div class="comp"><b>Integritas</b><span>Menolak jalan pintas, gratifikasi leveransir, dan data rekayasa.</span><i></i></div>
+    </div>
+  </div>
+</section>
+
+<section class="band mod" id="misi-persiapan">
+  <div class="bgword" data-px>Persiapan</div>
+  <div class="wrap">
+    <div class="mhead rv"><span class="tag">Misi 1 · H−15</span><h2>Persiapan: kebutuhan anggaran operasi laut</h2></div>
+    <div class="mgrid">
+      <div class="mtext">
+        <p>Perintah Pendahuluan (PP) dari Pangkotama terbit kurang lebih 15 hari sebelum KRI berangkat. Tanpa PP atau otorisasi P-3, Kadeplog tidak boleh mengajukan UUDP maupun tagihan langsung ke Pekas.</p>
+        <ul class="keys">
+          <li><b>Personel × indeks per hari × hari berlayar</b>Rumus UMO dan TNL. Pelayaran lebih dari 30 hari dapat diajukan lagi.</li>
+          <li><b>Potongan strata</b>UMO, TNL, uang layar, dan uang sandar dipotong 5% untuk Perwira Pertama (Kapten, Lettu, Letda) dan 15% untuk Perwira Menengah (Kolonel, Letkol, Mayor). Bintara dan Tamtama tanpa potongan.</li>
+          <li><b>Indeks per rayon, TGM Kasal T-069/1025</b>UMO Rp75.000 sampai Rp97.000 per orang per hari menurut rayon operasi; TNL dibedakan Perwira dan Bintara/Tamtama.</li>
+          <li><b>Bekal awal bahan basah 3 hari</b>Renbut dibuat Bottlier sesuai kekuatan organik dan non organik, ditandatangani Kadeplog, diajukan ke Pasprogar.</li>
+          <li><b>BBM lewat PUT</b>Diajukan ke Dismatbek dan Lantamal, diterima dengan pengukuran dan Berita Terima Barang.</li>
+        </ul>
+      </div>
+      <div class="player" data-v="0"></div>
+    </div>
+    <div class="sim" id="sim1">
+      <div class="simh"><h3>Simulasi: susun UUDP bekal awal</h3><small>Rayon II · isi potongan strata dan volume orang-hari</small></div>
+      <div class="brieft">
+        <div><b>3</b><span>Perwira Menengah</span></div><div><b>11</b><span>Perwira Pertama</span></div><div><b>96</b><span>Bintara dan Tamtama</span></div><div><b>25 hari</b><span>berlayar · Rayon II</span></div>
+      </div>
+      <div class="idx">
+        <div class="idxh"><b>Indeks TGM Kasal T-069/1025 · TA 2025</b><span>per orang per hari</span></div>
+        <div class="scroll"><table><thead><tr><th>Rayon</th><th>Wilayah</th><th class="num">UMO</th><th class="num">TNL Perwira</th><th class="num">TNL Bintara/Tamtama</th></tr></thead><tbody id="idxb"></tbody></table></div>
+        <p class="note">TNL = uang saku + penambah daya tahan tubuh + dana rekreasi + jahril + kodal ops. Uang layar Rp150.000, uang sandar Rp75.000.</p>
+        <div class="pot"><b>Potongan strata</b><span>UMO, TNL, uang layar, dan uang sandar</span><i>Perwira Menengah (Kolonel, Letkol, Mayor) <b>15%</b></i><i>Perwira Pertama (Kapten, Lettu, Letda) <b>5%</b></i><i>Bintara dan Tamtama <b>0%</b></i></div>
+      </div>
+      <table class="stack" id="rab"><thead><tr><th>Pos UUDP</th><th>Satuan</th><th class="num">Indeks</th><th class="num">Potongan (%)</th><th class="num">Volume</th><th class="num">Jumlah</th></tr></thead><tbody></tbody></table>
+      <div class="tot"><div><span>Total UUDP diajukan</span><b id="t1">Rp0</b></div><div><span>Otorisasi PP (simulasi)</span><b>Rp350.000.000</b></div><div><span>Sisa</span><b id="s1">Rp350.000.000</b></div></div>
+      <div class="meter"><i id="m1"></i></div>
+      <div class="row"><button class="btn" id="chk1">Periksa pengajuan</button><button class="btn ghost" id="rst1">Kosongkan</button></div>
+      <div class="res" id="r1" aria-live="polite"></div>
+      <p class="note">Indeks UMO, TNL, dan uang layar mengikuti TGM Kasal T-069/1025 TA 2025. Otorisasi, nama, dan nominal lain adalah angka simulasi fiktif. Prosedur mengacu Vademecum Taruna AAL Korps Suplai TA 2023.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band mod" id="misi-berlayar">
+  <div class="bgword" data-px>Berlayar</div>
+  <div class="wrap">
+    <div class="mhead rv"><span class="tag">Misi 2 · Di laut</span><h2>Berlayar: perubahan kebutuhan anggaran mendadak</h2></div>
+    <div class="mgrid">
+      <div class="mtext">
+        <p>Operasi bisa diperpanjang, rencana gerak berubah, atau PP diganti. Kadeplog harus memastikan dukungan dana tetap mengalir ke kapal yang sedang di laut tanpa keluar dari aturan.</p>
+        <ul class="keys">
+          <li><b>Bekal ulang 15 hari sebelum habis</b>Ajukan UUDP UMO dan TNL lewat telegram bila operasi lebih dari 30 hari.</li>
+          <li><b>Tahu ke mana dana dikirim</b>Koordinasi dengan Kadep Ops soal rencana gerak; laporkan posisi bekul ke Pasproga Satuan.</li>
+          <li><b>Satu PP, satu UUDP</b>Bila PP operasi A batal dan terbit PP B, UUDP A disetor kembali per KU-42.</li>
+        </ul>
+      </div>
+      <div class="player" data-v="1"></div>
+    </div>
+    <div class="sim"><div class="simh"><h3>Simulasi: telegram dari Pangkotama</h3><small>6 keputusan · 150 detik</small></div><div id="sim2"></div></div>
+  </div>
+</section>
+
+<section class="band mod" id="misi-wabku">
+  <div class="bgword" data-px>Wabku</div>
+  <div class="wrap">
+    <div class="mhead rv"><span class="tag">Misi 3 · DWD</span><h2>Penanganan dokumen pertanggungjawaban</h2></div>
+    <div class="mgrid">
+      <div class="mtext">
+        <p>Kelengkapan pertanggungjawaban keuangan (Wabku) menentukan terbitnya SPM. Satu tanda tangan kosong atau satu angka tidak cocok membuat berkas kembali ke kapal.</p>
+        <ul class="keys">
+          <li><b>Belanja operasional</b>KU-17, kuitansi LS, SPP, SPTJM, Surat Perintah Operasi, rincian pengeluaran yang disahkan, daftar nominatif.</li>
+          <li><b>Formulir berita Lapsitpers</b>Telegram kekuatan personel saat berlayar menjadi kelengkapan Wabku UUDP.</li>
+          <li><b>Ceklist uang layar</b>Personel sesuai Lapsitpers × indeks setelah potongan strata; ditandatangani seluruh anggota, Kadeplog, dan diketahui Komandan KRI.</li>
+        </ul>
+      </div>
+      <div class="player" data-v="2"></div>
+    </div>
+    <div class="sim">
+      <div class="simh"><h3>Simulasi: coklit berkas, temukan 5 kesalahan</h3><small>Ketuk bagian yang salah, lalu verifikasi</small></div>
+      <div class="docs" id="docs"></div>
+      <div class="row" style="margin-top:16px"><button class="btn" id="chk3">Verifikasi berkas</button><button class="btn ghost" id="rst3">Ulangi</button><span id="c3" style="color:var(--mute);font-size:14px">0 bagian ditandai</span></div>
+      <div class="res" id="r3" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section class="band mod" id="misi-koordinasi">
+  <div class="bgword" data-px>Koordinasi</div>
+  <div class="wrap">
+    <div class="mhead rv"><span class="tag">Misi 4 · Sepanjang operasi</span><h2>Koordinasi dengan satuan pengguna anggaran</h2></div>
+    <div class="mgrid">
+      <div class="mtext">
+        <p>Kadeplog berada di simpul Komandan KRI, Kadep Ops, Pasproga Satuan, Pekas, Bottlier, leveransir, dan KRI lain. Koordinasi yang rapi membuat bekal dan dana tiba tepat posisi.</p>
+        <ul class="keys">
+          <li><b>Lapsitpers 6 jam setelah DWA</b>Konsep telegram Kadeplog, ditandatangani Komandan, dikirim per SRAL.</li>
+          <li><b>Barang diperiksa tim penerima</b>Tim yang ditunjuk Komandan memeriksa kualitas dan kuantitas sebelum masuk gudang.</li>
+          <li><b>Prosedur D-10</b>Bantuan suku cadang untuk Satkai darurat: cek kartu persediaan, izin Komandan, formulir PUS.</li>
+        </ul>
+      </div>
+      <div class="player" data-v="3"></div>
+    </div>
+    <div class="sim">
+      <div class="simh"><h3>Simulasi: anjungan dan kantor logistik</h3><small>5 situasi · pilih respons Anda</small></div>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <div class="opts" id="cops" style="margin-top:12px"></div>
+    </div>
+  </div>
+</section>
+
+<section class="band mod" id="misi-pengakhiran">
+  <div class="bgword" data-px>Pengakhiran</div>
+  <div class="wrap">
+    <div class="mhead rv"><span class="tag">Misi 5 · ≤ 30 hari</span><h2>Pengakhiran layar dalam keterbatasan waktu</h2></div>
+    <div class="mgrid">
+      <div class="mtext">
+        <p>Begitu KRI sandar, jam pertanggungjawaban mulai berjalan. Semua UUDP harus tuntas, sisa dana kembali ke Pekas, dan hak uang layar personel diurus sesuai data yang sah.</p>
+        <ul class="keys">
+          <li><b>Paling lambat 30 hari</b>Seluruh UUDP yang diterima selesai dipertanggungjawabkan setelah KRI tiba.</li>
+          <li><b>Setor sisa UUDP segera</b>Mencegah duplikasi sisa dana bagi KRI yang beroperasi terus-menerus.</li>
+          <li><b>Uang layar dan sandar pola 2:1</b>Setiap 3 hari dihitung paling banyak 2 hari layar dan 1 hari sandar, lalu dipotong sesuai strata.</li>
+          <li><b>Lapsitkas tiap bulan, paling lambat T+5</b>Ke Pekas Satuan, tembusan Itarma dan Kadisku Armada/Kotama.</li>
+        </ul>
+      </div>
+      <div class="player" data-v="4"></div>
+    </div>
+    <div class="sim" id="simL">
+      <div class="simh"><h3>Simulasi: ceklist uang layar dan uang sandar</h3><small>Pola 2 hari layar, 1 hari sandar</small></div>
+      <div class="brieft">
+        <div><b>25</b><span>hari operasi</span></div><div><b>3</b><span>Pamen di Lapsitpers</span></div><div><b>11</b><span>Pama di Lapsitpers</span></div><div><b>96</b><span>Bintara dan Tamtama</span></div>
+      </div>
+      <div class="lsdays">
+        <label>Hari layar dihitung<input id="hl" inputmode="numeric" autocomplete="off" placeholder="0"><span class="hint" id="hlh"></span></label>
+        <label>Hari sandar dihitung<input id="hs" inputmode="numeric" autocomplete="off" placeholder="0"><span class="hint" id="hsh"></span></label>
+        <p class="note" style="margin:0">Indeks uang layar Rp150.000, uang sandar Rp75.000, lalu dipotong sesuai strata.</p>
+      </div>
+      <div class="days" id="days" aria-hidden="true"></div>
+      <table class="stack" id="lst"><thead><tr><th>Strata</th><th class="num">Personel</th><th class="num">Uang layar bersih</th><th class="num">Uang sandar bersih</th><th class="num">Jumlah</th></tr></thead><tbody></tbody></table>
+      <div class="tot" style="grid-template-columns:minmax(0,1fr)"><div><span>Total uang layar dan uang sandar</span><b id="tL">Rp0</b></div></div>
+      <div class="row"><button class="btn" id="chkL">Periksa ceklist</button><button class="btn ghost" id="rstL">Kosongkan</button></div>
+      <div class="res" id="rL" aria-live="polite"></div>
+    </div>
+    <div class="sim"><div class="simh"><h3>Simulasi: 60 detik sebelum batas</h3><small>10 pernyataan · benar atau salah</small></div><div id="sim5"></div></div>
+  </div>
+</section>
+
+<section class="band glos" id="singkatan">
+  <div class="bgword" data-px>Singkatan</div>
+  <div class="wrap">
+    <div class="mhead rv"><span class="tag">Kamus</span><h2>Singkatan operasi dan keuangan</h2></div>
+    <p class="lead">Rangkuman istilah dari kelima misi. Ketuk sebuah kartu untuk membukanya; kartu lain menutup otomatis.</p>
+    <div class="gtools"><input id="gq" type="search" placeholder="Cari singkatan atau arti, misalnya UUDP" aria-label="Cari singkatan" autocomplete="off"><div class="gcats" id="gcats" role="group" aria-label="Kelompok"></div></div>
+    <div class="ggrid" id="ggrid"></div>
+    <p class="gempty" id="gempty" hidden>Tidak ada singkatan yang cocok.</p>
+  </div>
+</section>
+
+<section class="band final" id="laporan">
+  <div class="wrap">
+    <h2>Laporan penilaian Kadeplog</h2>
+    <p class="sub">Nilai terisi otomatis setiap kali satu simulasi selesai. Kompetensi yang belum diuji tampil kosong.</p>
+    <div class="fgrid">
+      <div class="fpanel"><div class="fig rad"><svg id="radar" role="img" aria-label="Grafik radar lima kompetensi"></svg></div></div>
+      <div class="fpanel">
+        <div class="bars" id="bars"></div>
+        <div class="verdict" id="verdict">Belum ada misi selesai</div>
+        <p id="vtext" style="margin:0 0 18px;color:var(--mute)">Selesaikan minimal satu simulasi untuk melihat penilaian.</p>
+        <button class="btn" id="resetAll">Ulang semua misi</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap"><span>Financial Battle Simulation · TNI AL Korps Suplai</span><span>Acuan: Vademecum Taruna AAL Korps Suplai TA 2023 · TGM Kasal T-069/1025</span></div></footer>
+
+<script>
+{
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const id=n=>Math.round(n).toLocaleString('id-ID');
+const jt=n=>n.toLocaleString('id-ID',{maximumFractionDigits:2});
+const num=s=>{s=String(s).trim().replace(/\s|rp/gi,'');if(s.includes(',')){s=s.replace(/\./g,'').replace(',','.')}else if(/\.\d{3}(\.|$)/.test(s)){s=s.replace(/\./g,'')}return parseFloat(s)};
+const SUN='<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',MOON='<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>';
+const thB=$('#themeBtn');const thSync=()=>{const l=document.documentElement.dataset.mode==='light';thB.innerHTML=l?MOON:SUN;thB.setAttribute('aria-label',l?'Ganti ke mode gelap':'Ganti ke mode terang')};thSync();
+thB.onclick=()=>{const r=document.documentElement,n=r.dataset.mode==='light'?'dark':'light';r.dataset.mode=n;thSync()};
+new MutationObserver(thSync).observe(document.documentElement,{attributes:true,attributeFilter:['data-mode']});
+$$('h1 .w').forEach(w=>{w.innerHTML=[...w.dataset.t].map((c,i)=>`<span style="--i:${i}">${c}</span>`).join('')});
+const cnt=$('#cnt'),T0=performance.now(),GOAL=341925000;
+const cstep=n=>{const p=Math.min(1,(n-T0-600)/1800);cnt.textContent=id(p<0?0:GOAL*(1-Math.pow(1-p,4)));if(p<1)requestAnimationFrame(cstep)};
+if(RM)cnt.textContent=id(GOAL);else requestAnimationFrame(cstep);
+const tw=['Perintah Pendahuluan','Personel × indeks × hari','Lapsitpers DWA +6 jam','Bekal ulang H−15','Satu PP satu UUDP','Wabku ≤ 30 hari','Tolak gratifikasi'];
+$('#tk').innerHTML=[...tw,...tw].map(t=>`<span>${t}</span>`).join('');
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in-v');io.unobserve(e.target)}}),{threshold:.2});
+$$('.mod,.brief,.cyc,.glos').forEach(el=>io.observe(el));
+const pxs=$$('[data-px]');let tick=false;
+const onScroll=()=>{if(tick||RM)return;tick=true;requestAnimationFrame(()=>{const vh=innerHeight;pxs.forEach(el=>{const r=el.parentElement.getBoundingClientRect();const k=(r.top+r.height/2-vh/2)/vh;el.style.transform=`translateX(${(k*-18).toFixed(2)}%)`});tick=false})};
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+/* ===== motion engine ===== */
+const A='#ff5a1f',K='#d9c99a',I='#eef1ee',D='#06121a',O='#0f2430',GR='#5fa3a8';
+const cl=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const seg=(p,a,b)=>cl((p-a)/(b-a));
+const E={o:p=>1-Math.pow(1-p,3),io:p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2,back:p=>{const c=1.7;return 1+(c+1)*Math.pow(p-1,3)+c*Math.pow(p-1,2)}};
+const T=(x,y,s,o={})=>`<text x="${x}" y="${y}" font-family="${o.f==='b'?"Archivo,Helvetica,sans-serif":"'Big Shoulders Display',Impact,'Arial Narrow',sans-serif"}" font-size="${o.s||60}" font-weight="${o.w||900}" fill="${o.c||I}" text-anchor="${o.a||'start'}" opacity="${o.o??1}"${o.ls?` letter-spacing="${o.ls}"`:''}>${s}</text>`;
+const R=(x,y,w,h,c,o={})=>`<rect x="${x}" y="${y}" width="${Math.max(0,w)}" height="${Math.max(0,h)}" fill="${c}" rx="${o.r||0}" opacity="${o.o??1}"${o.st?` stroke="${o.st}" stroke-width="${o.sw||2}"`:''}/>`;
+const G=(tr,inner,o=1)=>`<g transform="${tr}" opacity="${o}">${inner}</g>`;
+const C=(x,y,r,c,o={})=>`<circle cx="${x}" cy="${y}" r="${Math.max(0,r)}" fill="${o.f||'none'}" stroke="${c}" stroke-width="${o.sw||3}" opacity="${o.o??1}"/>`;
+const L=(x1,y1,x2,y2,c,sw=3,o=1,da='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${sw}" opacity="${o}" stroke-linecap="round"${da?` stroke-dasharray="${da}"`:''}/>`;
+const stamp=(q,x,y,txt,c=A,s=120)=>{if(q<=0)return'';const k=1+1.6*(1-E.o(q)),w=txt.length*s*.46+90;return G(`translate(${x},${y}) rotate(-8) scale(${k.toFixed(3)})`,R(-w/2,-s*.82,w,s*1.25,'none',{st:c,sw:10,r:12})+T(0,s*.3,txt,{s,c,a:'middle'}),cl(q*3))};
+const BASE=`<defs><pattern id="gp" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M80 0H0V80" fill="none" stroke="rgba(238,241,238,.06)" stroke-width="2"/></pattern><pattern id="hz" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="30" height="60" fill="${A}"/><rect x="30" width="30" height="60" fill="${D}"/></pattern></defs><rect width="1600" height="900" fill="${D}"/><rect width="1600" height="900" fill="url(#gp)"/>`;
+const frame=(i,n)=>`<path d="M40 100V40H100M1500 40H1560V100M1560 800V860H1500M100 860H40V800" fill="none" stroke="${K}" stroke-width="4" opacity=".5"/>`+T(1540,88,`${i+1}/${n}`,{s:34,c:K,a:'end',w:800});
+const wipe=p=>{if(p>=.18)return'';const w=E.io(seg(p,0,.18));return R(1600*w,0,1600,900,A)+R(1600*w-120,0,120,900,K,{o:.9})};
+
+const SHIP=(x,y,k=1,c=I)=>`<g transform="translate(${x.toFixed?x.toFixed(1):x},${y}) scale(${k})" fill="${c}"><path d="M-260 0 L240 0 L300 -46 L-250 -46 Z"/><path d="M-150 -46 V-86 H-40 V-120 H40 V-86 H95 V-46 Z"/><rect x="-6" y="-200" width="10" height="82"/><rect x="-44" y="-176" width="88" height="8"/><rect x="150" y="-66" width="56" height="20"/><path d="M178 -58 L246 -76" stroke="${c}" stroke-width="10"/></g>`;
+const WAVE=(y,amp,ph,c,o=1)=>{let d=`M0 ${y}`;for(let x=0;x<=1600;x+=40)d+=` L${x} ${(y+Math.sin(x/120+ph)*amp).toFixed(1)}`;return `<path d="${d} L1600 900 L0 900Z" fill="${c}" opacity="${o}"/>`};
+const SQ=(x,y)=>`<path d="M${x} ${y} c20 -30 40 30 60 0 s40 -30 60 0" stroke="${D}" stroke-width="4" fill="none"/>`;
+
+/* --- video 1: persiapan --- */
+const V1=[
+{d:5,cap:'Perintah Pendahuluan terbit sekitar 15 hari sebelum KRI bertolak. Inilah dasar seluruh pengajuan UUDP.',draw:(p,ls)=>{
+ const a=E.o(seg(p,.05,.35)),b=E.back(seg(p,.2,.55));
+ const items=['98 organik + 12 non organik','25 hari berlayar','Bekal awal bahan basah 3 hari','PUT BBM ke Dismatbek'];
+ const doc=R(0,0,480,560,I,{r:8})+R(0,0,480,90,'#14394a',{r:8})+T(30,62,'PERINTAH PENDAHULUAN',{s:42})+items.map((t,i)=>{const q=seg(p,.45+i*.1,.55+i*.1);return R(30,130+i*100,420*E.o(q),72,'#dfe3dc',{r:4})+T(50,178+i*100,t,{f:'b',s:26,w:800,c:D,o:q})}).join('');
+ return WAVE(780,10,ls*2,'#0d2a37')+SHIP(500,760,.55,'#183c4c')+T(120-260*(1-a),330,'H−15',{s:220,o:a})+T(120-420*(1-a),500,'PERSIAPAN',{s:170,c:A,o:a})+T(124,575,'Tanpa PP atau P-3, UUDP tidak boleh diajukan',{f:'b',s:30,w:600,c:K,o:seg(p,.3,.45)})+G(`translate(1000,${170+(1-b)*700}) rotate(${(-6+6*b).toFixed(2)})`,doc)}},
+{d:6,cap:'Rumus UMO dan TNL: personel × indeks per hari × hari berlayar. UMO dan TNL lalu dikurangi potongan strata perwira.',draw:p=>{
+ const q=[seg(p,.05,.2),seg(p,.18,.33),seg(p,.3,.5),seg(p,.55,.7),seg(p,.68,.9)];
+ return T(120,160,'PERSONEL × INDEKS × HARI BERLAYAR',{s:56,c:K})
+ +T(260,430,'110',{s:220,a:'middle',o:q[0]})+T(260,500,'personel',{f:'b',s:28,w:600,a:'middle',c:K,o:q[0]})
+ +T(470,410,'×',{s:140,a:'middle',c:K,o:q[1]})+T(640,430,'25',{s:220,a:'middle',o:q[1]})+T(640,500,'hari',{f:'b',s:28,w:600,a:'middle',c:K,o:q[1]})
+ +T(820,410,'=',{s:140,a:'middle',c:K,o:q[2]})+T(900,430,id(2750*E.o(q[2])),{s:220,c:A,o:q[2]})+T(1420,430,'OH',{s:80,c:K,o:q[2]})
+ +T(260,720,'× Rp83.000',{s:110,c:K,o:q[3]})+T(820,720,'= Rp'+jt(Math.round(228.25*E.o(q[4])*100)/100)+' jt bruto',{s:110,c:A,o:q[4]})}},
+{d:6,cap:'Paket bekal awal Rayon II: UMO dan TNL setelah potongan strata lewat UUDP. Bahan basah 3 hari lewat renbut.',draw:p=>{
+ const vals=[226.175,115.75],nm=['UMO','TNL'],cs=[A,K],x0=150,W=1300,sc=W/350;let x=x0,sum=0,s='';
+ vals.forEach((v,i)=>{const q=E.o(seg(p,.08+i*.15,.25+i*.15)),w=v*sc*q;s+=R(x,330,w,140,cs[i]);x+=w;sum+=v*q;
+  s+=G(`translate(${x0+i*300},520)`,R(0,0,26,26,cs[i])+T(38,22,nm[i],{f:'b',s:26,w:700})+T(38,64,'Rp'+jt(v)+' jt',{s:36,c:K}),q)});
+ const c1=E.back(seg(p,.5,.65)),c2=E.back(seg(p,.62,.78)),xx=E.o(seg(p,.82,.95));
+ return s+R(x0,330,W,140,'none',{st:'rgba(238,241,238,.3)',sw:3})+L(x0+W,280,x0+W,520,I,4,1,'14 10')+T(x0+W,262,'OTORISASI 350 JT',{s:40,a:'end'})+T(x0,262,'Rp'+jt(Math.round(sum*100)/100)+' jt',{s:100})
+ +G(`translate(150,${700+(1-cl(c1))*200})`,R(0,0,600,96,I,{r:48})+T(300,62,'BAHAN BASAH 3 HARI · RENBUT',{s:40,a:'middle',c:D}),cl(c1))
+ +G(`translate(850,${700+(1-cl(c2))*200})`,R(0,0,600,96,'none',{r:48,st:A,sw:4})+T(300,62,'POTONGAN PAMA 5% · PAMEN 15%',{s:40,a:'middle',c:A}),cl(c2))}},
+{d:4,cap:'UUDP Rp341,925 juta siap diajukan ke Pekas Satuan. Kapal siap bertolak.',draw:(p,ls)=>WAVE(760,14,ls*3,'#0d2a37')+SHIP(400+300*E.io(seg(p,0,1)),740,.6,'#1b4456')+stamp(seg(p,.08,.4),800,360,'SIAP BERTOLAK',A,150)+T(800,560,'UUDP Rp341.925.000 diajukan ke Pekas Satuan',{f:'b',s:40,w:600,a:'middle',c:K,o:seg(p,.45,.6)})}
+];
+
+/* --- video 2: berlayar --- */
+const V2=[
+{d:5,cap:'Telegram masuk: operasi diperpanjang 15 hari sehingga total pelayaran melewati 30 hari.',draw:(p,ls)=>{
+ const fl=.55+.45*Math.abs(Math.sin(ls*5)),a=E.o(seg(p,.05,.3));
+ return WAVE(820,12,ls*3,'#0d2a37')+T(120,180,'TELEGRAM PANGKOTAMA',{s:46,c:K,o:a})+R(0,280,1600*a,240,'url(#hz)',{o:fl})+R(180,330,1240*a,140,D)+T(800,440,'PERUBAHAN MENDADAK',{s:124,a:'middle',o:a})
+ +['+15 HARI','TOTAL 40 HARI','SINGGAH LANTAMAL'].map((t,i)=>{const q=E.back(seg(p,.4+i*.12,.6+i*.12));return G(`translate(${330+i*470},${670+(1-q)*320})`,R(-210,-70,420,100,i==1?I:A,{r:50})+T(0,0,t,{s:50,a:'middle',c:D}),cl(q))}).join('')}},
+{d:6,cap:'Bekal UUDP habis hari ke-25. Bekal ulang wajib diajukan 15 hari sebelumnya: paling lambat hari ke-10.',draw:(p,ls)=>{
+ const x0=150,sc=1300/40,X=d=>x0+d*sc,q=E.io(seg(p,.05,.35)),e=E.o(seg(p,.35,.55)),m=E.back(seg(p,.55,.75));
+ let s=T(150,170,'GARIS WAKTU PELAYARAN',{s:56,c:K})+R(X(0),450,25*sc*q,90,K)+R(X(25),450,15*sc*e,90,'url(#hz)',{o:.8});
+ [0,10,20,25,30,40].forEach(d=>s+=L(X(d),550,X(d),575,I,3,.6)+T(X(d),615,'H'+d,{f:'b',s:24,w:700,a:'middle',c:K}));
+ s+=L(X(30),420,X(30),560,I,3,.7,'10 8')+T(X(30),405,'30 HARI',{f:'b',s:22,w:800,a:'middle'})+T(X(25)-10,520,'HABIS',{s:40,a:'end',c:D,o:q});
+ const sx=X(12*seg(p,.05,.9));s+=SHIP(sx,430,.22,I);
+ if(m>0)s+=L(X(10),300,X(10),560,A,6)+G(`translate(${X(10)},300)`,R(-10,-80,520,70,A,{r:6})+T(14,-32,'HARI KE-10 · AJUKAN BEKUL',{s:40,c:D}),cl(m));
+ return s+T(150,760,'Bekul = UMO dan TNL untuk 15 hari tambahan',{f:'b',s:34,w:600,o:seg(p,.75,.9)})}},
+{d:6,cap:'Tiga langkah benar di laut, satu jalan pintas yang dilarang.',draw:p=>{
+ const tt=[['Telegram','bekal ulang'],['Rencana','gerak'],['Lapor posisi','ke Pasproga'],['Pakai UUDP','PP lain']],dd=[['Diajukan 15 hari','sebelum habis.'],['Koordinasi','Kadep Ops.'],['Pekas transfer ke','pangkalan singgah.'],['Satu PP,','satu UUDP.']];
+ let s=T(110,190,'TIGA LANGKAH BENAR · SATU JALAN PINTAS SALAH',{s:50,c:K,o:seg(p,.02,.15)});
+ tt.forEach((t,i)=>{const q=E.back(seg(p,.1+i*.12,.32+i*.12)),bad=i==3,bg=bad?O:I,fc=bad?I:D;
+  let c=R(0,0,330,420,bg,{r:10,st:bad?A:'none',sw:3})+T(30,120,t[0],{s:56,c:fc})+T(30,182,t[1],{s:56,c:bad?A:'#14394a'})+T(30,300,dd[i][0],{f:'b',s:24,w:600,c:fc})+T(30,334,dd[i][1],{f:'b',s:24,w:600,c:fc});
+  if(bad){const x=E.o(seg(p,.75,.9));c+=L(24,24,24+282*x,24+372*x,A,14)+L(306,24,306-282*x,24+372*x,A,14)}else c+=C(282,56,26,A,{sw:6,f:A});
+  s+=G(`translate(${110+i*360},${250+(1-q)*700}) rotate(${((1-q)*(i%2?8:-8)).toFixed(2)})`,c,cl(q*2))});
+ return s}},
+{d:5,cap:'Bila PP operasi A batal dan terbit PP operasi B: setor kembali UUDP A per KU-42, lalu urus UUDP B.',draw:p=>{
+ const xs=[220,600,980,1360],lb=['PP A batal','Setor KU-42','Terima PP B','UUDP baru'],sb=['operasi tidak jadi','UUDP A kembali','dasar baru','sesuai PP B'];
+ let s=T(120,200,'SATU PP, SATU UUDP',{s:64,o:seg(p,.02,.15)})+R(220,466,1140*E.io(seg(p,.05,.7)),8,K);
+ xs.forEach((x,i)=>{const q=E.back(seg(p,.05+i*.17,.17+i*.17));s+=C(x,470,46*cl(q,0,1.3),A,{f:i==3?A:D,sw:8})+T(x,590,lb[i],{s:54,a:'middle',o:cl(q)})+T(x,636,sb[i],{f:'b',s:24,w:600,a:'middle',c:K,o:cl(q)})});
+ return s+stamp(seg(p,.78,.95),1250,230,'SESUAI PP',A,100)}}
+];
+
+/* --- video 3: wabku --- */
+const V3=[
+{d:5,cap:'Berkas Wabku belanja operasional: KU-17, SPP dan SPTJM, Surat Perintah Operasi, rincian yang disahkan, dan Lapsitpers.',draw:p=>{
+ const nm=['KU-17','SPP · SPTJM','Sprin operasi','Rincian sah','Lapsitpers'],hc=[A,K,GR,'#e8e3cf','#2f6f86'];
+ let s=T(800,200,'KELENGKAPAN WABKU',{s:80,a:'middle',o:seg(p,.02,.2)});
+ nm.forEach((n,i)=>{const q=E.o(seg(p,.1+i*.06,.6+i*.06));let c=R(-130,-200,260,340,I,{r:8})+R(-130,-200,260,62,hc[i],{r:8})+T(-110,-156,n,{s:34,c:D});
+  for(let k=0;k<5;k++)c+=R(-110,-100+k*44,220-(k%2)*60,16,'#cfd5cf',{r:4});
+  s+=G(`translate(${(800+(i-2)*270*q).toFixed(1)},${(560+Math.abs(i-2)*30*q).toFixed(1)}) rotate(${((i-2)*12*q).toFixed(2)})`,c)});
+ return s}},
+{d:6,cap:'Coklit ceklist uang layar: jumlah harus sama dengan Lapsitpers, semua anggota tanda tangan, Komandan KRI mengetahui.',draw:p=>{
+ const rows=[['Serma Adi W.',1],['Sertu Bayu R.',1],['Kopda Candra',0],['KLK Dimas',1]];
+ let d=R(0,0,1000,560,I,{r:10})+T(40,80,'CEKLIST UANG LAYAR',{s:62,c:D})+T(40,140,'Dasar : Lapsitpers 6 jam setelah DWA · 110 personel',{f:'b',s:24,w:600,c:D})+T(40,200,'Jumlah diajukan : 112 orang',{f:'b',s:28,w:800,c:D});
+ rows.forEach((r,i)=>{const y=270+i*50;d+=T(40,y,r[0],{f:'b',s:26,w:600,c:D})+L(520,y+6,800,y+6,'#9aa29a',2)+(r[1]?SQ(540,y-8):'')});
+ d+=T(40,510,'Kadeplog :',{f:'b',s:26,w:600,c:D})+SQ(190,500)+T(520,510,'Mengetahui Komandan KRI : ......',{f:'b',s:24,w:600,c:D});
+ let s=T(300,150,'PERIKSA SILANG DENGAN LAPSITPERS',{s:56})+G('translate(300,200)',d);
+ const pts=[[620,392],[900,560],[1150,700]],lb=['Beda dengan Lapsitpers','Tanda tangan kosong','Komandan belum TTD'],lx=[420,860,1280];
+ const u=seg(p,.1,.85)*3,k=Math.min(2,Math.floor(u)),f=E.io(u-k),from=k==0?[400,330]:pts[k-1],to=pts[k];
+ const mx=from[0]+(to[0]-from[0])*(u>=3?1:f),my=from[1]+(to[1]-from[1])*(u>=3?1:f);
+ pts.forEach((pt,i)=>{const q=E.back(seg(p,.3+i*.2,.4+i*.2));if(q<=0)return;s+=C(pt[0],pt[1],56*cl(q,0,1.4),A,{sw:8})+L(pt[0],pt[1]+56,lx[i],800,A,3,cl(q))+G(`translate(${lx[i]},840)`,R(-170,-38,340,56,A,{r:6})+T(0,0,lb[i],{f:'b',s:26,w:800,c:D,a:'middle'}),cl(q))});
+ return s+C(mx,my,76,D,{sw:12,f:'rgba(255,255,255,.12)'})+L(mx+54,my+54,mx+116,my+116,D,22)}},
+{d:5,cap:'Gunakan daftar periksa yang sama untuk setiap berkas belanja operasional.',draw:p=>{
+ const it=['KU-17 dan kuitansi langsung (LS)','SPP dan SPTJM','Surat Perintah Operasi','Rincian pengeluaran disahkan Komandan','Daftar nominatif dengan nilai rupiah','Formulir berita Lapsitpers'];
+ return T(360,150,'DAFTAR PERIKSA WABKU',{s:64,c:K})+it.map((t,i)=>{const y=250+i*95,q=E.o(seg(p,.1+i*.13,.22+i*.13));return R(360,y-50,60,60,'none',{st:K,sw:5,r:6})+`<path d="M372 ${y-22} l16 18 l30 -38" stroke="${A}" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="80" stroke-dashoffset="${(80*(1-q)).toFixed(1)}"/>`+T(460,y,t,{f:'b',s:38,w:600,o:.35+.65*q})}).join('')}},
+{d:4,cap:'Wabku ditandatangani Kadeplog, disetujui Komandan, lalu diteruskan ke Satuan untuk dicoklit Pasproga.',draw:p=>stamp(seg(p,.08,.4),800,420,'LENGKAP · BENAR · SAH',A,110)+T(800,680,'Kadeplog TTD → Komandan setuju → Satuan coklit',{f:'b',s:38,w:600,a:'middle',c:K,o:seg(p,.45,.6)})}
+];
+
+/* --- video 4: koordinasi --- */
+const ND=[['Komandan KRI','DAN',800,170],['Kadep Ops','OPS',1300,330],['Pasproga Satuan','PRG',1150,720],['Pekas','KAS',450,720],['Lantamal singgah','LTM',300,330]];
+const node=(n,q,lit)=>{const [nm,ab,x,y]=n,ly=y>470?y+122:y-95;return C(x,y,70*cl(q,0,1.3),lit?A:K,{f:lit?A:O,sw:5})+T(x,y+16,ab,{s:44,a:'middle',c:lit?D:I,o:cl(q)})+T(x,ly,nm,{s:44,a:'middle',o:cl(q)})};
+const V4=[
+{d:5,cap:'Simpul koordinasi Kadeplog: Komandan KRI, Kadep Ops, Pasproga Satuan, Pekas, dan pangkalan singgah.',draw:p=>{
+ const c=E.back(seg(p,.02,.2));let s='';
+ ND.forEach((n,i)=>{const q=E.back(seg(p,.15+i*.12,.3+i*.12)),r=E.o(seg(p,.12+i*.12,.3+i*.12));s+=L(800,470,800+(n[2]-800)*r,470+(n[3]-470)*r,K,3,.6,'10 10')+node(n,q,false)});
+ return s+C(800,470,100*cl(c,0,1.3),A,{f:A,sw:4})+T(800,484,'KADEPLOG',{s:42,a:'middle',c:D,o:cl(c)})}},
+{d:6,cap:'Agar dana tiba di laut: rencana gerak dari Kadep Ops, posisi bekul ke Pasproga, Pekas transfer ke pangkalan singgah.',draw:p=>{
+ const rt=[1,2,3,4],lb=['Rencana gerak dari Kadep Ops','Posisi bekul ke Pasproga','Transfer UUDP ke pangkalan singgah'];
+ const u=seg(p,.05,.95)*3,k=Math.min(2,Math.floor(u)),f=u>=3?1:E.io(u-k),a=ND[rt[k]],b=ND[rt[k+1]];
+ let s='';for(let i=0;i<3;i++){const A1=ND[rt[i]],B1=ND[rt[i+1]];s+=L(A1[2],A1[3],B1[2],B1[3],i<=k?K:'rgba(238,241,238,.15)',4)}
+ ND.forEach((n,i)=>s+=node(n,1,rt.slice(0,k+2).includes(i)));
+ for(let j=0;j<6;j++){const ff=Math.max(0,f-j*.04);s+=C(a[2]+(b[2]-a[2])*ff,a[3]+(b[3]-a[3])*ff,18-j*2.5,A,{f:A,sw:0,o:1-j*.15})}
+ return s+T(120,120,lb[k],{s:52,c:A})}},
+{d:5,cap:'Prinsip koordinasi: jelas, tertulis, tepat posisi.',draw:p=>['JELAS.','TERTULIS.','TEPAT POSISI.'].map((w,i)=>{const q=E.o(seg(p,.05+i*.25,.25+i*.25));return T(120-(1-q)*240,320+i*210,w,{s:200,c:i==2?A:I,o:q})}).join('')},
+{d:4,cap:'Satu data kekuatan personel, satu jalur dana.',draw:p=>{
+ let s='';const q=E.o(seg(p,.05,.5));ND.forEach((n,i)=>{const m=ND[(i+1)%5];s+=L(n[2],n[3],n[2]+(m[2]-n[2])*q,n[3]+(m[3]-n[3])*q,A,5)});
+ ND.forEach(n=>s+=node(n,1,true));
+ return s+T(800,455,'SATU DATA',{s:90,a:'middle',o:seg(p,.4,.6)})+T(800,545,'SATU JALUR',{s:90,a:'middle',c:A,o:seg(p,.55,.75)})}}
+];
+
+/* --- video 5: pengakhiran --- */
+const V5=[
+{d:5,cap:'KRI tiba kembali di pangkalan. Sejak saat itu, paling lambat 30 hari untuk menuntaskan seluruh Wabku UUDP.',draw:(p,ls)=>{
+ const sx=250+800*E.o(seg(p,0,.6)),dd=Math.round(30*seg(p,.6,.95));
+ return T(120,180,'DWD · KRI TIBA DI PANGKALAN',{s:60,c:K})+R(1180,600,420,300,'#1b4456')+R(1180,600,420,16,K)+WAVE(700,10,ls*2,'#0d2a37')+SHIP(sx,690,.6,I)
+ +T(120,420,'≤ '+dd+' HARI',{s:200,c:A,o:seg(p,.55,.7)})+T(124,490,'untuk Wabku UUDP tuntas',{f:'b',s:36,w:600,o:seg(p,.6,.75)})}},
+{d:6,cap:'Empat kewajiban pengakhiran layar yang tidak boleh terlewat.',draw:p=>[['≤ 30 HARI','Wabku UUDP UMO dan TNL tuntas'],['SEGERA','Sisa UUDP disetor ke Pekas pemberi'],['T+5','Lapsitkas bulanan ke Pekas Satuan'],['2 : 1','2 hari layar, 1 hari sandar; potongan strata']].map((r,i)=>{const q=E.o(seg(p,.05+i*.17,.25+i*.17)),y=170+i*165;return G(`translate(${(1-q)*-900},0)`,R(150,y,1300,130,i%2?O:'#123342',{r:10})+R(150,y,12,130,A)+T(200,y+92,r[0],{s:72,c:A})+T(560,y+80,r[1],{f:'b',s:32,w:600}),q)}).join('')},
+{d:5,cap:'Alur Wabku: Kadeplog menandatangani, Komandan menyetujui, Satuan mencocokkan dan meneliti sebelum ke Pekas.',draw:p=>{
+ let s=T(800,170,'ALUR PENYELESAIAN WABKU',{s:64,a:'middle'});['KADEPLOG TTD','KOMANDAN SETUJU','SATUAN COKLIT'].forEach((w,i)=>{const q=E.io(seg(p,.08+i*.27,.33+i*.27)),x=230+i*420;s+=R(x,280,300,420,O,{r:8})+R(x,700-420*q,300,420*q,i==2?A:K,{r:8})+T(x+150,780,w,{s:52,a:'middle'})+T(x+150,690-420*q+(q>.12?60:-10),Math.round(q*100)+'%',{s:56,a:'middle',c:q>.12?D:I})});return s}},
+{d:4,cap:'Pengakhiran layar tuntas: tepat waktu, tanpa sisa dana tertahan, tanpa data rekayasa.',draw:p=>T(120,330,'PENGAKHIRAN',{s:170,o:seg(p,.05,.2)})+T(120,500,'LAYAR.',{s:170,c:A,o:seg(p,.2,.35)})+T(124,590,'Tepat waktu, tanpa sisa tertahan, tanpa rekayasa',{f:'b',s:38,w:600,c:K,o:seg(p,.35,.5)})+stamp(seg(p,.55,.85),1300,420,'TUNTAS',A,110)}
+];
+const VIDS=[V1,V2,V3,V4,V5];
+const ICON_PLAY='<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>';
+const ICON_PAUSE='<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" fill="currentColor"/><rect x="14" y="4" width="5" height="16" fill="currentColor"/></svg>';
+const ICON_REP='<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5" stroke="currentColor" stroke-width="2.6" fill="none"/></svg>';
+/* ===== voice over: waktu baris hasil analisis audio, adegan dipetakan ke ketukan suara ===== */
+const VOD=[{"lines": [[0.28, 2.85, "Misi satu. Persiapan di pangkalan."], [3.66, 8.91, "Perintah Pendahuluan terbit H minus lima belas. Tanpa PP, tidak ada pengajuan UUDP."], [9.65, 11.11, "Rumusnya sederhana."], [11.67, 14.43, "Seratus sepuluh personel, kali dua puluh lima hari,"], [14.64, 17.03, "dua ribu tujuh ratus lima puluh orang-hari."], [17.17, 19.77, "kali indeks Rayon dua, delapan puluh tiga ribu,"], [20.23, 22.63, "dua ratus dua puluh delapan juta rupiah, bruto."], [23.43, 26.84, "UMO dan TNL disusun sebagai UUDP bekal awal."], [27.24, 29.2, "Bahan basah tiga hari, lewat renbut."], [29.81, 33.57, "Potongan strata: Pama lima persen, Pamen lima belas persen."], [34.4, 35.42, "Siap bertolak."], [35.95, 38.96, "Tiga ratus empat puluh satu koma sembilan juta, ke Pekas Satuan."]], "sp": [[0.28, 1.07], [1.86, 2.85], [3.66, 6.11], [6.55, 7.18], [7.43, 8.32], [8.41, 8.91], [9.65, 9.9], [10.19, 11.11], [11.67, 12.87], [13.23, 14.43], [14.64, 14.68], [14.86, 16.8], [16.98, 17.03], [17.17, 17.39], [17.5, 18.49], [18.77, 19.77], [20.23, 22.15], [22.23, 22.63], [23.43, 23.77], [23.87, 26.84], [27.24, 28.36], [28.51, 29.2], [29.81, 30.74], [31.03, 31.97], [32.39, 33.57], [34.4, 34.51], [34.72, 35.42], [35.95, 37.94], [38.17, 38.96]]}, {"lines": [[0.28, 2.91, "Misi dua. Telegram dari Pangkotama."], [3.3, 5.28, "Operasi diperpanjang lima belas hari."], [5.71, 6.9, "Total empat puluh hari."], [7.29, 8.33, "Singgah di Lantamal."], [9.02, 11.51, "Bekal UUDP habis di hari kedua puluh lima."], [12.02, 14.07, "Lima belas hari sisanya belum terdukung."], [14.98, 17.47, "Bekal ulang diajukan paling lambat hari kesepuluh."], [18.09, 19.92, "UMO dan TNL, lima belas hari."], [20.44, 21.2, "Tiga langkah benar."], [21.79, 23.0, "Kirim telegram bekal ulang."], [23.47, 24.48, "Ketahui rencana gerak."], [25.02, 26.71, "Laporkan posisi ke Pasproga."], [27.39, 31.22, "Dan satu jalan pintas terlarang: memakai UUDP dari PP lain."], [31.94, 33.87, "Satu PP, satu UUDP."], [34.59, 35.34, "PP A batal."], [35.9, 37.78, "Setor kembali, KU empat puluh dua."], [38.46, 40.72, "Terima PP B, urus UUDP baru."], [41.54, 43.52, "Sesuai PP."]], "sp": [[0.28, 0.93], [1.53, 2.29], [2.37, 2.91], [3.3, 5.28], [5.71, 6.06], [6.21, 6.43], [6.51, 6.9], [7.29, 8.33], [9.02, 11.51], [12.02, 13.13], [13.21, 14.07], [14.98, 17.47], [18.09, 19.04], [19.2, 19.92], [20.44, 21.2], [21.79, 23.0], [23.47, 23.52], [23.6, 24.48], [25.02, 25.19], [25.28, 26.71], [27.39, 28.77], [29.14, 30.58], [30.7, 31.22], [31.94, 32.53], [32.88, 33.87], [34.59, 35.34], [35.9, 36.55], [36.92, 37.78], [38.46, 39.14], [39.67, 40.72], [41.54, 42.17], [42.85, 43.52]]}, {"lines": [[0.33, 2.74, "Misi tiga. Kelengkapan Wabku."], [3.44, 11.53, "K U tujuh belas. SPP dan SPTJM. Surat Perintah Operasi. Rincian pengeluaran yang disahkan. Dan formulir berita Lapsitpers."], [12.58, 15.22, "Periksa silang ceklist uang layar dengan Lapsitpers."], [15.79, 17.05, "Jumlah personel tidak sama."], [17.47, 19.65, "Ada tanda tangan anggota yang kosong."], [19.8, 21.6, "Komandan KRI belum mengetahui."], [22.04, 23.35, "Berkas kembali ke kapal."], [24.69, 28.68, "Gunakan daftar periksa yang sama. Satu per satu, sampai semua tercentang."], [30.04, 31.22, "Lengkap. Benar. Sah."], [31.54, 35.6, "Kadeplog tanda tangan, Komandan setuju, Satuan mencocokkan."]], "sp": [[0.33, 1.21], [1.67, 2.46], [2.61, 2.74], [3.11, 3.18], [3.44, 4.33], [4.56, 6.06], [6.33, 6.61], [6.69, 7.46], [7.8, 9.33], [9.45, 9.49], [9.57, 11.11], [11.2, 11.53], [12.58, 14.17], [14.3, 14.86], [14.95, 15.22], [15.79, 17.05], [17.47, 19.26], [19.56, 19.65], [19.8, 20.68], [20.79, 21.6], [22.04, 23.35], [24.69, 26.2], [26.57, 27.34], [27.54, 28.68], [30.04, 30.38], [30.81, 31.22], [31.54, 31.85], [32.12, 32.27], [32.4, 33.34], [33.56, 34.34], [34.61, 35.6]]}, {"lines": [[0.23, 2.33, "Misi empat. Koordinasi."], [3.17, 9.36, "Kadeplog di tengah: Komandan, Kadep Ops, Pasproga, Pekas, dan pangkalan singgah."], [10.23, 12.99, "Rencana gerak, dari Kadep Ops."], [13.66, 16.25, "Posisi bekal ulang, ke Pasproga Satuan."], [17.0, 20.03, "Pekas mentransfer UUDP ke pangkalan singgah."], [21.05, 21.5, "Jelas."], [21.97, 22.52, "Tertulis."], [22.96, 23.6, "Tepat posisi."], [25.26, 26.01, "Satu data."], [26.47, 27.29, "Satu jalur."]], "sp": [[0.23, 0.81], [1.49, 2.33], [3.17, 4.25], [4.74, 5.33], [5.69, 6.3], [6.64, 7.29], [7.74, 8.21], [8.41, 9.36], [10.23, 10.36], [10.8, 11.38], [11.95, 12.71], [12.83, 12.99], [13.66, 14.61], [15.03, 15.13], [15.22, 15.42], [15.5, 16.25], [17.0, 18.11], [18.23, 18.77], [18.85, 19.03], [19.12, 20.03], [21.05, 21.5], [21.97, 22.52], [22.96, 23.6], [25.26, 26.01], [26.47, 27.29]]}, {"lines": [[0.2, 2.95, "Misi lima. KRI kembali ke pangkalan."], [3.47, 6.36, "Jam pertanggungjawaban berjalan: tiga puluh hari."], [7.95, 10.41, "Wabku UMO dan TNL, tuntas."], [10.75, 13.5, "Sisa UUDP, segera disetor ke Pekas."], [13.64, 16.77, "Lapsitkas, setiap bulan, paling lambat T plus lima."], [17.73, 22.67, "Uang layar dan sandar: dua hari layar, satu hari sandar, setelah potongan strata."], [23.64, 25.55, "Kadeplog tanda tangan."], [25.99, 27.03, "Komandan menyetujui."], [27.43, 29.37, "Satuan mencocokkan dan meneliti."], [30.63, 32.08, "Pengakhiran layar."], [32.53, 34.3, "Tanpa sisa, tanpa rekayasa."], [35.21, 35.71, "Tuntas."]], "sp": [[0.2, 1.01], [1.44, 2.95], [3.47, 5.17], [5.55, 6.36], [7.21, 7.34], [7.95, 8.42], [8.53, 9.74], [9.87, 10.41], [10.75, 13.24], [13.38, 13.5], [13.64, 14.31], [14.45, 14.56], [14.64, 15.21], [15.41, 15.9], [16.1, 16.77], [17.26, 17.32], [17.74, 18.84], [19.17, 19.99], [20.18, 21.06], [21.34, 21.77], [21.87, 22.67], [23.64, 23.79], [24.35, 24.84], [24.97, 25.55], [25.99, 27.03], [27.43, 29.37], [30.63, 30.82], [31.2, 32.08], [32.53, 33.22], [33.49, 34.3], [35.21, 35.71]]}];
+const SUBS=[[[0.28, 2.85, "Misi 1. Persiapan di pangkalan."], [3.66, 6.11, "Perintah Pendahuluan terbit H−15."], [6.55, 8.91, "Tanpa PP, tidak ada pengajuan UUDP."], [9.65, 11.11, "Rumusnya sederhana."], [11.67, 14.43, "110 personel × 25 hari"], [14.64, 17.03, "= 2.750 orang-hari"], [17.17, 19.77, "× indeks Rayon II Rp83.000"], [20.23, 22.63, "= Rp228.250.000 (bruto)"], [23.43, 26.84, "UMO dan TNL disusun sebagai UUDP bekal awal."], [27.24, 29.2, "Bahan basah 3 hari, lewat renbut."], [29.81, 30.74, "Potongan strata:"], [31.03, 33.57, "Pama 5%, Pamen 15%."], [34.4, 35.42, "Siap bertolak."], [35.95, 37.94, "Rp341,9 juta"], [38.17, 38.96, "ke Pekas Satuan."]], [[0.28, 2.91, "Misi 2. Telegram dari Pangkotama."], [3.3, 5.28, "Operasi diperpanjang 15 hari."], [5.71, 6.9, "Total 40 hari."], [7.29, 8.33, "Singgah di Lantamal."], [9.02, 11.51, "Bekal UUDP habis di hari ke-25."], [12.02, 14.07, "15 hari sisanya belum terdukung."], [14.98, 17.47, "Bekal ulang diajukan paling lambat hari ke-10."], [18.09, 19.92, "UMO dan TNL, 15 hari."], [20.44, 21.2, "Tiga langkah benar."], [21.79, 23.0, "Kirim telegram bekal ulang."], [23.47, 24.48, "Ketahui rencana gerak."], [25.02, 26.71, "Laporkan posisi ke Pasproga."], [27.39, 28.77, "Dan satu jalan pintas terlarang:"], [29.14, 31.22, "memakai UUDP dari PP lain."], [31.94, 33.87, "Satu PP, satu UUDP."], [34.59, 35.34, "PP A batal."], [35.9, 37.78, "Setor kembali, KU-42."], [38.46, 40.72, "Terima PP B, urus UUDP baru."], [41.54, 43.52, "Sesuai PP."]], [[0.33, 2.74, "Misi 3. Kelengkapan Wabku."], [3.44, 6.06, "KU-17. SPP dan SPTJM."], [6.33, 7.46, "Surat Perintah Operasi."], [7.8, 9.49, "Rincian pengeluaran yang disahkan."], [9.57, 11.53, "Dan formulir berita Lapsitpers."], [12.58, 15.22, "Periksa silang ceklist uang layar dengan Lapsitpers."], [15.79, 17.05, "Jumlah personel tidak sama."], [17.47, 19.65, "Ada tanda tangan anggota yang kosong."], [19.8, 21.6, "Komandan KRI belum mengetahui."], [22.04, 23.35, "Berkas kembali ke kapal."], [24.69, 26.2, "Gunakan daftar periksa yang sama."], [26.57, 28.68, "Satu per satu, sampai semua tercentang."], [30.04, 31.22, "Lengkap. Benar. Sah."], [31.54, 34.34, "Kadeplog tanda tangan, Komandan setuju,"], [34.61, 35.6, "Satuan mencocokkan."]], [[0.23, 2.33, "Misi 4. Koordinasi."], [3.17, 4.25, "Kadeplog di tengah:"], [4.74, 8.21, "Komandan, Kadep Ops, Pasproga, Pekas,"], [8.41, 9.36, "dan pangkalan singgah."], [10.23, 12.99, "Rencana gerak, dari Kadep Ops."], [13.66, 16.25, "Posisi bekal ulang, ke Pasproga Satuan."], [17.0, 20.03, "Pekas mentransfer UUDP ke pangkalan singgah."], [21.05, 21.5, "Jelas."], [21.97, 22.52, "Tertulis."], [22.96, 23.6, "Tepat posisi."], [25.26, 26.01, "Satu data."], [26.47, 27.29, "Satu jalur."]], [[0.2, 2.95, "Misi 5. KRI kembali ke pangkalan."], [3.47, 5.17, "Jam pertanggungjawaban berjalan:"], [5.55, 6.36, "30 hari."], [7.95, 10.41, "Wabku UMO dan TNL, tuntas."], [10.75, 13.5, "Sisa UUDP, segera disetor ke Pekas."], [13.64, 16.77, "Lapsitkas, setiap bulan, paling lambat T+5."], [17.73, 18.84, "Uang layar dan sandar:"], [19.17, 21.06, "2 hari layar, 1 hari sandar,"], [21.34, 22.67, "setelah potongan strata."], [23.64, 25.55, "Kadeplog tanda tangan."], [25.99, 27.03, "Komandan menyetujui."], [27.43, 29.37, "Satuan mencocokkan dan meneliti."], [30.63, 32.08, "Pengakhiran layar."], [32.53, 34.3, "Tanpa sisa, tanpa rekayasa."], [35.21, 35.71, "Tuntas."]]];
+const SCN=[[{"s": 0.0, "d": 9.25, "an": [[0, 0], [0.28, 1], [2.85, 4.5], [3.66, 5], [8.91, 11], [9.25, 12]]}, {"s": 9.25, "d": 13.78, "an": [[0, 0], [1.86, 2], [5.18, 5], [7.78, 7.5], [10.52, 10], [13.38, 13], [13.78, 14]]}, {"s": 23.03, "d": 10.97, "an": [[0, 0], [0.4, 1], [3.81, 5], [6.17, 7.5], [10.54, 11.5], [10.97, 12]]}, {"s": 34.0, "d": 6.92, "an": [[0, 0], [0.4, 1], [1.42, 3.5], [4.96, 7.5], [6.92, 8]]}], [{"s": 0.0, "d": 8.62, "an": [[0, 0], [0.28, 1], [2.91, 4], [5.28, 6], [6.9, 8], [8.62, 10]]}, {"s": 8.62, "d": 11.51, "an": [[0, 0], [2.89, 4], [5.45, 6.5], [8.85, 9.5], [11.51, 12]]}, {"s": 20.13, "d": 11.41, "an": [[0, 0], [1.07, 2], [2.87, 4.5], [4.35, 6.5], [6.58, 9], [11.09, 13], [11.41, 14]]}, {"s": 31.54, "d": 13.82, "an": [[0, 0], [2.33, 2], [3.8, 3.5], [6.24, 6], [9.18, 7.8], [10.0, 8], [13.82, 10]]}], [{"s": 0.0, "d": 12.18, "an": [[0, 0], [2.74, 3], [11.53, 11], [12.18, 12]]}, {"s": 12.18, "d": 12.11, "an": [[0, 0], [3.04, 3.5], [3.61, 4], [4.87, 6.3], [5.29, 6.5], [7.47, 9], [9.42, 11.5], [12.11, 13]]}, {"s": 24.29, "d": 5.35, "an": [[0, 0], [0.4, 1], [4.39, 7], [5.35, 8]]}, {"s": 29.64, "d": 7.88, "an": [[0, 0], [0.4, 0.5], [1.58, 2.5], [1.9, 3], [5.96, 6.5], [7.88, 7]]}], [{"s": 0.0, "d": 9.83, "an": [[0, 0], [2.33, 2], [9.36, 7.5], [9.83, 8]]}, {"s": 9.83, "d": 10.82, "an": [[0, 0], [0.4, 0.5], [3.16, 4], [6.42, 7.5], [10.2, 11.5], [10.82, 12]]}, {"s": 20.65, "d": 4.21, "an": [[0, 0], [0.4, 0.3], [0.85, 1.8], [1.32, 2], [1.87, 3.5], [2.31, 4], [2.95, 5.5], [4.21, 7]]}, {"s": 24.86, "d": 4.42, "an": [[0, 0], [0.4, 2.8], [1.15, 4], [2.43, 5.5], [4.42, 7]]}], [{"s": 0.0, "d": 7.55, "an": [[0, 0], [2.95, 4], [3.47, 4.5], [6.36, 7.5], [7.55, 8]]}, {"s": 7.55, "d": 15.69, "an": [[0, 0], [0.4, 0.5], [2.86, 3], [5.95, 5.7], [9.22, 8.6], [15.12, 14], [15.69, 15]]}, {"s": 23.24, "d": 6.99, "an": [[0, 0], [0.4, 0.5], [2.31, 2.5], [2.75, 2.8], [3.79, 4.8], [4.19, 5], [6.13, 7.5], [6.99, 8]]}, {"s": 30.23, "d": 7.53, "an": [[0, 0], [0.4, 0.3], [1.85, 2.5], [4.07, 4], [5.48, 6], [7.53, 7]]}]];
+
+/* ===== musik latar sintetis: briefing militer sinematik ===== */
+const SND={music:true};
+const AU={};
+const auCtx=()=>{if(AU.ctx)return AU.ctx;try{const Cx=window.AudioContext||window.webkitAudioContext;if(!Cx)return null;const c=new Cx();AU.ctx=c;
+ AU.master=c.createGain();AU.master.gain.value=.85;const cp=c.createDynamicsCompressor();cp.threshold.value=-18;cp.ratio.value=3;AU.master.connect(cp);cp.connect(c.destination);
+ AU.mus=c.createGain();AU.mus.gain.value=0;AU.mus.connect(AU.master);
+ const dl=c.createDelay(1);dl.delayTime.value=.28;const fb=c.createGain();fb.gain.value=.28;const wet=c.createGain();wet.gain.value=.22;dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(AU.mus);AU.verb=dl;
+ const b=c.createBuffer(1,c.sampleRate,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;AU.noise=b;return c}catch(e){return null}};
+/* tempo, nada dasar, intensitas per misi */
+const MOODS=[{bpm:96,root:55,in:1},{bpm:124,root:49,in:3},{bpm:100,root:58.27,in:1},{bpm:104,root:51.91,in:2},{bpm:92,root:55,in:2}];
+const PROG=[[0,3,7],[-4,0,3],[3,7,10],[-2,2,5]];
+const hz=(r,st)=>r*Math.pow(2,st/12);
+const env=(g,t0,a,peak,dec)=>{g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(peak,t0+a);g.gain.exponentialRampToValueAtTime(.0001,t0+a+dec)};
+const timp=(t0,f,v)=>{const c=AU.ctx,o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(f*1.6,t0);o.frequency.exponentialRampToValueAtTime(f,t0+.08);env(g,t0,.006,v,.7);o.connect(g);g.connect(AU.mus);o.start(t0);o.stop(t0+.8)};
+const snare=(t0,v)=>{const c=AU.ctx,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();s.buffer=AU.noise;f.type='bandpass';f.frequency.value=1900;f.Q.value=.8;env(g,t0,.002,v,.12);s.connect(f);f.connect(g);g.connect(AU.mus);s.start(t0,Math.random()*.5);s.stop(t0+.16)};
+const tik=(t0,v)=>{const c=AU.ctx,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();s.buffer=AU.noise;f.type='highpass';f.frequency.value=8000;env(g,t0,.002,v,.04);s.connect(f);f.connect(g);g.connect(AU.mus);s.start(t0,Math.random()*.5);s.stop(t0+.06)};
+const stac=(t0,f,v)=>{const c=AU.ctx,o=c.createOscillator(),lp=c.createBiquadFilter(),g=c.createGain();o.type='sawtooth';o.frequency.value=f;lp.type='lowpass';lp.frequency.value=1400;env(g,t0,.008,v,.16);o.connect(lp);lp.connect(g);g.connect(AU.mus);g.connect(AU.verb);o.start(t0);o.stop(t0+.22)};
+const pad=(t0,len,ch,root)=>{const c=AU.ctx,lp=c.createBiquadFilter(),g=c.createGain();lp.type='lowpass';lp.frequency.setValueAtTime(500,t0);lp.frequency.linearRampToValueAtTime(1100,t0+len*.6);g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.045,t0+.5);g.gain.setValueAtTime(.045,t0+len-.3);g.gain.exponentialRampToValueAtTime(.0001,t0+len+.4);lp.connect(g);g.connect(AU.mus);g.connect(AU.verb);
+ ch.forEach(st=>[-.07,.07].forEach(dt=>{const o=c.createOscillator();o.type='sawtooth';o.frequency.value=hz(root*4,st+dt);o.connect(lp);o.start(t0);o.stop(t0+len+.5)}));
+ const b=c.createOscillator(),bg=c.createGain();b.type='triangle';b.frequency.value=hz(root,ch[0]<0?ch[0]+12:ch[0]);bg.gain.setValueAtTime(.0001,t0);bg.gain.exponentialRampToValueAtTime(.12,t0+.1);bg.gain.setValueAtTime(.12,t0+len-.2);bg.gain.exponentialRampToValueAtTime(.0001,t0+len+.2);b.connect(bg);bg.connect(AU.mus);b.start(t0);b.stop(t0+len+.3)};
+const whoosh=()=>{const c=AU.ctx;if(!c||!AU.on)return;try{const t0=c.currentTime,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();s.buffer=AU.noise;f.type='bandpass';f.Q.value=1.2;f.frequency.setValueAtTime(300,t0);f.frequency.exponentialRampToValueAtTime(3600,t0+.5);env(g,t0,.18,.1,.4);s.connect(f);f.connect(g);g.connect(AU.master);s.start(t0);s.stop(t0+.7);timp(t0+.02,AU.md.root*2,.35)}catch(e){}};
+const duck=on=>{if(!AU.ctx||!AU.on)return;try{const g=AU.mus.gain,t0=AU.ctx.currentTime;g.cancelScheduledValues(t0);g.setTargetAtTime(on?.3:1,t0,on?.08:.35)}catch(e){}};
+const musicStop=()=>{if(!AU.ctx)return;AU.on=false;clearInterval(AU.timer);try{const t0=AU.ctx.currentTime;AU.mus.gain.cancelScheduledValues(t0);AU.mus.gain.setTargetAtTime(0,t0,.15)}catch(e){}};
+const musicStart=m=>{const c=auCtx();if(!c)return;try{c.resume()}catch(e){}musicStop();AU.on=true;const md=MOODS[m]||MOODS[0];AU.md=md;
+ try{const st=60/md.bpm/4;let nx=c.currentTime+.1,b=0;
+  AU.timer=setInterval(()=>{try{while(nx<c.currentTime+.3){const bar=Math.floor(b/16),ch=PROG[bar%4],p=b%16;
+   if(p===0)pad(nx,st*16,ch,md.root);
+   if(p===0||p===8)timp(nx,md.root*2,.5);if(md.in>1&&(p===6||p===14))timp(nx,md.root*2*1.5,.22);
+   if(p===4||p===12)snare(nx,.16);if(md.in>2&&p%2===1)snare(nx,.035);
+   if(p%2===0)tik(nx,p%4===0?.035:.018);
+   if(p%2===0){const n=[0,7,12,7][(p/2)%4];stac(nx,hz(md.root*2,ch[0]+n),p%8===0?.07:.045)}
+   nx+=st;b++}}catch(e){}},40);
+  const t0=c.currentTime;AU.mus.gain.cancelScheduledValues(t0);AU.mus.gain.setTargetAtTime(1,t0,.4)}catch(e){}};
+const ICON_MU='<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17V5l11-2v12" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="6.5" cy="17.5" r="2.8" fill="currentColor"/><circle cx="17.5" cy="15.5" r="2.8" fill="currentColor"/></svg>';
+const syncToggles=()=>{$$('.tgm').forEach(b=>b.setAttribute('aria-pressed',SND.music));$$('.tgv').forEach(b=>b.setAttribute('aria-pressed',SND.voice))};
+const fts=x=>{const m=Math.floor(x/60),s=x-m*60;return m+':'+(s<10?'0':'')+(Number.isInteger(s)?s:s.toFixed(1))};
+const ft=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+
+/* audio terbuka pada interaksi pertama di mana pun (aturan peramban) */
+const unlock=()=>{if(AU.unlocked)return;const c=auCtx();if(!c)return;try{c.resume();const o=c.createOscillator(),g=c.createGain();g.gain.value=0;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.01)}catch(e){}AU.unlocked=true;document.documentElement.classList.add('snd-on');};
+['pointerdown','keydown','touchend','click'].forEach(ev=>addEventListener(ev,unlock,{capture:true,passive:true}));
+const ICON_VO='<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" stroke="currentColor" stroke-width="2" fill="none"/></svg>';
+SND.voice=true;
+const mapT=(an,x)=>{for(let k=1;k<an.length;k++){if(x<=an[k][0]){const a=an[k-1],b=an[k];return a[1]+(b[1]-a[1])*(x-a[0])/Math.max(.001,b[0]-a[0])}}return an[an.length-1][1]};
+function Player(host,sc,vi){
+ const SC=SCN[vi],V=VOD[vi],lines=V.lines,tot=SC[SC.length-1].s+SC[SC.length-1].d,starts=SC.map(x=>x.s);
+ let t=0,on=false,last=0,ci=-1,cc=-2,aud=false,me,inSp=null;
+ const au=new Audio();au.preload='auto';au.src='audio/v'+(vi+1)+'.mp3';
+ host.innerHTML=`<div class="screen"><svg viewBox="0 0 1600 900" aria-hidden="true"></svg><div class="fx" aria-hidden="true"></div><div class="sub" aria-live="off"><span></span></div><button class="big" aria-label="Putar video">${ICON_PLAY}</button><button class="snd" aria-label="Aktifkan suara">${ICON_VO}<span>Suara aktif saat diputar</span></button></div><div class="ctrl"><button class="pp" aria-label="Putar">${ICON_PLAY}</button><div class="track" role="slider" tabindex="0" aria-label="Posisi video" aria-valuemin="0" aria-valuemax="${Math.round(tot)}"><div class="fill"></div>${starts.slice(1).map(s=>`<i class="mk" style="left:${s/tot*100}%"></i>`).join('')}</div><span class="tm">0:00 / ${ft(tot)}</span><button class="tg tgv" aria-pressed="true" aria-label="Suara narator" title="Suara narator">${ICON_VO}</button><button class="tg tgm" aria-pressed="true" aria-label="Musik latar" title="Musik latar">${ICON_MU}</button></div><div class="chaps">${SC.map((s,i)=>`<button data-i="${i}">Adegan ${i+1}</button>`).join('')}</div>`;
+ const svg=$('svg',host),cap=$('.sub span',host),subw=$('.sub',host),pp=$('.pp',host),big=$('.big',host),snd=$('.snd',host),tr=$('.track',host),fill=$('.fill',host),tm=$('.tm',host),chs=$$('.chaps button',host),lis=$$('.nsk li',host);
+ const sceneAt=x=>{for(let k=SC.length-1;k>=0;k--){if(x>=SC[k].s)return k}return 0};
+ const voiceOn=()=>aud&&SND.voice&&AU.unlocked;
+ const render=()=>{const i=sceneAt(t),S=SC[i],lt=t-S.s,an=S.an,od=an[an.length-1][1],ot=mapT(an,lt),p=cl(ot/od);
+  svg.innerHTML=BASE+sc[i].draw(p,ot)+frame(i,SC.length)+(i>0?wipe(lt/S.d):'');
+  if(i!==ci){ci=i;chs.forEach((c,k)=>c.classList.toggle('cur',k===i));if(on&&aud&&i>0)whoosh()}
+  const SB=SUBS[vi];let k=-1;for(let j=0;j<SB.length;j++){const nx=SB[j+1]?SB[j+1][0]:tot;if(t>=SB[j][0]-.06&&t<Math.min(SB[j][1]+.45,nx-.04)){k=j;break}}
+  if(k!==cc){cc=k;const tx=k>=0?SB[k][2]:'';subw.classList.remove('in');if(tx){cap.textContent=tx;void subw.offsetWidth;subw.classList.add('in')}const li=k>=0?lines.findIndex(l=>SB[k][0]>=l[0]-.01&&SB[k][0]<l[1]):-1;lis.forEach((l,j)=>l.classList.toggle('now',j===li))}
+  if(aud&&AU.on){const sp=V.sp.some(r=>t>=r[0]-.12&&t<=r[1]+.25)&&SND.voice;if(sp!==inSp){inSp=sp;duck(sp)}}
+  fill.style.width=(t/tot*100)+'%';tm.textContent=ft(t)+' / '+ft(tot);tr.setAttribute('aria-valuenow',Math.round(t))};
+ const loop=n=>{if(!on)return;const dt=Math.min(.05,(n-last)/1000);last=n;
+  if(voiceOn()&&!au.paused&&!au.ended&&au.currentTime>0)t=au.currentTime;else t+=dt;
+  if(t>=tot){t=tot;render();stop(true);return}render();requestAnimationFrame(loop)};
+ const voStart=()=>{if(!voiceOn())return;try{if(t<au.duration||isNaN(au.duration)){au.currentTime=Math.min(t,(au.duration||1e9)-.05);const pr=au.play();if(pr&&pr.catch)pr.catch(()=>{})}}catch(e){}};
+ const voStop=()=>{try{au.pause()}catch(e){}};
+ const play=withAudio=>{if(on)return;if(t>=tot)t=0;aud=!!withAudio&&AU.unlocked&&(SND.music||SND.voice);host.classList.toggle('muted',!aud);
+  if(aud){players.forEach(p=>p!==me&&p.stop());if(SND.music){musicStart(vi);inSp=null}voStart()}
+  on=true;host.classList.add('on');pp.innerHTML=ICON_PAUSE;pp.setAttribute('aria-label','Jeda');last=performance.now();render();requestAnimationFrame(loop)};
+ const stop=end=>{const wasAud=aud;on=false;aud=false;host.classList.remove('muted');voStop();if(wasAud)musicStop();pp.innerHTML=end?ICON_REP:ICON_PLAY;pp.setAttribute('aria-label',end?'Putar ulang':'Putar');if(end){host.classList.remove('on');big.innerHTML=ICON_REP}};
+ const seek=v=>{t=cl(v,0,tot-.001);if(on&&voiceOn()){try{if(t<au.duration){au.currentTime=t;if(au.paused)au.play().catch(()=>{})}else au.pause()}catch(e){}}render()};
+ pp.onclick=()=>{unlock();on?stop(false):play(true)};big.onclick=()=>{unlock();play(true)};snd.onclick=e=>{e.stopPropagation();unlock();me.music()};
+ chs.forEach(c=>c.onclick=()=>{unlock();if(on)stop(false);t=starts[+c.dataset.i]+.001;play(true)});
+ $('.tgm',host).onclick=()=>{unlock();SND.music=!SND.music;syncToggles();if(!SND.music)musicStop();else if(on&&aud){musicStart(vi);inSp=null}else if(on)me.music()};
+ $('.tgv',host).onclick=()=>{unlock();SND.voice=!SND.voice;syncToggles();if(!SND.voice){voStop();duck(false);inSp=false}else if(on&&aud){voStart();inSp=null}else if(on)me.music()};
+
+ const fromX=e=>{const r=tr.getBoundingClientRect();seek((e.clientX-r.left)/r.width*tot)};
+ tr.addEventListener('pointerdown',e=>{fromX(e);tr.setPointerCapture(e.pointerId);const mv=ev=>fromX(ev);tr.addEventListener('pointermove',mv);tr.addEventListener('pointerup',()=>tr.removeEventListener('pointermove',mv),{once:true})});
+ tr.onkeydown=e=>{if(e.key==='ArrowRight'){seek(t+1);e.preventDefault()}if(e.key==='ArrowLeft'){seek(t-1);e.preventDefault()}};
+ t=SC[0].d*.6;render();t=0;fill.style.width='0%';tm.textContent='0:00 / '+ft(tot);subw.classList.remove('in');cc=-2;
+ me={play,stop:()=>{if(on)stop(false)},music:()=>{if(!on){play(true);return}if(!aud&&AU.unlocked){aud=true;host.classList.remove('muted');players.forEach(p=>p!==me&&p.stop());if(SND.music){musicStart(vi);inSp=null}voStart()}},get on(){return on},get done(){return t>=tot},host};return me;
+}
+const players=[];$$('.player').forEach(h=>players.push(Player(h,VIDS[+h.dataset.v],+h.dataset.v)));
+let vis=null;
+const pio=new IntersectionObserver(es=>es.forEach(e=>{const pl=players[$$('.player').indexOf(e.target)];if(!e.isIntersecting||e.intersectionRatio<.25)pl.stop()}),{threshold:[0,.25]});
+$$('.player').forEach(p=>pio.observe(p));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)players.forEach(p=>p.stop())});
+/* ===== kamus singkatan ===== */
+{const G=[["Perintah dan dasar", [["PP", "Perintah Pendahuluan", "Diterbitkan Pangkotama sekitar 15 hari sebelum KRI berangkat operasi. Dasar Kadeplog mengajukan UUDP dan tagihan langsung."], ["P-3", "Otorisasi anggaran", "Bentuk otorisasi yang juga dapat menjadi dasar pengajuan UUDP selain PP."], ["PG", "Perintah Gerak", "Bersama PP dan PB menjadi dasar renbut bekal awal bahan basah."], ["PB", "Perintah Berlayar", "Perintah pelayaran KRI; dipakai menyusun kekuatan personel yang ikut berlayar."], ["TGM", "Telegram", "Berita dinas resmi, misalnya TGM Kasal T-069/1025 tentang indeks UMO, TNL, uang layar, dan uang sandar."], ["DIPA", "Daftar Isian Pelaksanaan Anggaran", "Dokumen pelaksanaan anggaran. Pagunya batas pengeluaran tertinggi yang tidak boleh dilampaui."]]], ["Dana dan indeks", [["UUDP", "Uang Untuk Dipertanggungjawabkan", "Uang muka dari Pekas untuk operasi. Wajib dipertanggungjawabkan paling lambat 30 hari setelah KRI tiba, sisanya disetor kembali."], ["UMO", "Uang Makan Operasi", "Dihitung personel × indeks per hari × hari berlayar. Indeks per rayon, dipotong 5% untuk Pama dan 15% untuk Pamen."], ["TNL", "Taktis Non Logistik", "Uang saku, penambah daya tahan tubuh, dana rekreasi, jahril, dan kodal ops. Ikut dipotong sesuai strata."], ["ULP", "Uang Lauk Pauk", "Dukungan makan personel. ULP organik tidur dalam disalurkan melalui Pekas."], ["Bekul", "Bekal Ulang", "Dukungan tambahan saat operasi berlanjut. Diajukan 15 hari sebelum bekal habis."], ["OH", "Orang-hari", "Satuan volume: jumlah personel × jumlah hari. Contoh 110 personel × 25 hari = 2.750 OH."], ["BBM", "Bahan Bakar Minyak", "Bekal cair KRI. Diminta lewat PUT dan diterima dengan pengukuran serta berita terima barang."]]], ["Dokumen pertanggungjawaban", [["Wabku", "Pertanggungjawaban Keuangan", "Berkas bukti penggunaan uang negara. Kelengkapannya menentukan terbitnya SPM."], ["KU-17", "Formulir KU-17", "Lembar pertama dalam setiap daftar kelengkapan Wabku."], ["KU-42", "Formulir KU-42", "Dipakai untuk menyetor kembali UUDP, misalnya saat PP operasi batal."], ["SPP", "Surat Permintaan Pembayaran", "Kelengkapan Wabku untuk mengajukan pembayaran."], ["SPTJM", "Surat Pernyataan Tanggung Jawab Mutlak", "Pernyataan bahwa pengeluaran dapat dipertanggungjawabkan sepenuhnya."], ["SPM", "Surat Perintah Membayar", "Terbit setelah berkas Wabku lengkap dan benar."], ["Coklit", "Pencocokan dan penelitian", "Pemeriksaan silang kelengkapan dan kebenaran berkas Wabku."], ["Renbut", "Rencana Kebutuhan", "Disusun Bottlier, ditandatangani Kadeplog, diajukan ke Pasprogar untuk penunjukan leveransir."], ["PUT", "Permintaan Untuk Terima", "Formulir permintaan bekal, termasuk BBM, ke Dismatbek dan Lantamal."], ["PUS", "Permintaan Untuk Menyerahkan", "Formulir dalam Prosedur D-10 saat menyerahkan suku cadang ke Satkai lain yang darurat."], ["BDP", "Buku Dasar Perbendaan", "Acuan catuan bekal di KRI; dasar pengajuan PUT."]]], ["Laporan", [["Lapsitpers", "Laporan Situasi Personel", "Telegram kekuatan personel 6 jam setelah KRI berlayar. Dasar uang layar dan kelengkapan Wabku."], ["Lapsitkas", "Laporan Situasi Kas", "Laporan kas bank pembukuan UUDP, setiap bulan paling lambat T+5 ke Pekas Satuan."], ["SRAL", "Saluran Radio Angkatan Laut", "Jalur pengiriman Lapsitpers dari KRI ke Pangkotama."], ["DWA", "Waktu bertolak", "Saat KRI lepas sandar dan berlayar. Lapsitpers dikirim 6 jam setelahnya."], ["DWD", "Waktu tiba", "Saat KRI tiba dan sandar di pangkalan. Mulai dihitung batas 30 hari Wabku."]]], ["Jabatan dan satuan", [["KRI", "Kapal Perang Republik Indonesia", "Unsur yang melaksanakan operasi laut."], ["Kadeplog", "Kepala Departemen Logistik", "Perwira Korps Suplai di KRI yang mengurus administrasi, keuangan, dan pembekalan."], ["Kadep Ops", "Kepala Departemen Operasi", "Sumber informasi rencana gerak dan pangkalan singgah."], ["Pekas", "Pemegang Kas", "Memberi UUDP, menerima setoran sisa, dan mengevaluasi Lapsitkas."], ["PPK", "Pejabat Pembuat Komitmen", "Pejabat yang menyetujui dan memeriksa rencana belanja."], ["Pasproga", "Perwira program dan anggaran satuan", "Meneliti kelengkapan Wabku dan mengurus permintaan bekal ulang."], ["Pangkotama", "Panglima Komando Utama", "Menerbitkan Perintah Pendahuluan operasi."], ["Koarmada", "Komando Armada", "Komando utama kekuatan laut TNI AL."], ["Lantamal", "Pangkalan Utama TNI AL", "Pangkalan tempat KRI singgah, bekal ulang, dan menerima transfer UUDP."], ["Pama", "Perwira Pertama", "Letda, Lettu, Kapten. Potongan UMO, TNL, uang layar, dan sandar 5%."], ["Pamen", "Perwira Menengah", "Mayor, Letkol, Kolonel. Potongan UMO, TNL, uang layar, dan sandar 15%."]]]];const CC=['#ff5a1f','#d9a92b','#3fa7b8','#8fbf5a','#c47ad6'];
+const grid=$('#ggrid'),q=$('#gq'),cats=$('#gcats');let cat=-1;
+grid.innerHTML=G.map((g,gi)=>g[1].map(x=>`<button class="gc" data-g="${gi}" aria-expanded="false" style="--c:${CC[gi]}"><span class="ab"><b>${x[0]}</b></span><span class="pl">${x[1]}</span><span class="ex"><span>${x[2]}</span></span><span class="chev" aria-hidden="true">+</span></button>`).join('')).join('');
+cats.innerHTML=['Semua',...G.map(g=>g[0])].map((n,i)=>`<button data-c="${i-1}" aria-pressed="${i===0}">${i?`<span class="dot" style="background:${CC[i-1]}"></span>`:''}${n}</button>`).join('');
+const cards=$$('.gc',grid);
+const openOne=c=>{const was=c.getAttribute('aria-expanded')==='true';cards.forEach(x=>x.setAttribute('aria-expanded','false'));if(!was){c.setAttribute('aria-expanded','true');c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop')}};
+cards.forEach(c=>c.onclick=()=>openOne(c));
+const filt=()=>{const t=q.value.trim().toLowerCase();let n=0;cards.forEach(c=>{const ok=(cat<0||+c.dataset.g===cat)&&(!t||c.textContent.toLowerCase().includes(t));c.hidden=!ok;if(ok)n++;if(!ok)c.setAttribute('aria-expanded','false')});$('#gempty').hidden=n>0};
+q.addEventListener('input',filt);
+$$('button',cats).forEach(b=>b.onclick=()=>{cat=+b.dataset.c;$$('button',cats).forEach(x=>x.setAttribute('aria-pressed',x===b));filt()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cards.forEach(x=>x.setAttribute('aria-expanded','false'))});}
+/* ===== scoring ===== */
+const KEYS=[['tek','Teknis'],['tel','Ketelitian'],['cep','Kecepatan'],['pim','Kepemimpinan'],['int','Integritas']];
+let onScore=()=>{};let comp={};const resetComp=()=>{comp={tek:{},tel:{},cep:{},pim:{},int:{}}};resetComp();
+const avg=k=>{const v=Object.values(comp[k]);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null};
+const setC=(k,m,v)=>{comp[k][m]=Math.round(cl(v,0,100))};
+const rs=$('#radar');
+const drawRadar=()=>{const W=rs.clientWidth,H=rs.clientHeight;if(!W)return;const sm=W<420,cx=W/2,cy=H/2+4,r=Math.min(W,H)/2-(sm?52:64);
+ const ang=i=>-Math.PI/2+i*2*Math.PI/5,pt=(i,f)=>[cx+Math.cos(ang(i))*r*f,cy+Math.sin(ang(i))*r*f];
+ let s='';[.25,.5,.75,1].forEach(f=>s+=`<polygon points="${KEYS.map((_,i)=>pt(i,f).join(',')).join(' ')}" fill="none" stroke="rgba(239,238,230,.16)"/>`);
+ KEYS.forEach((_,i)=>{const [x,y]=pt(i,1);s+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(239,238,230,.16)"/>`});
+ const vs=KEYS.map(k=>avg(k[0]));s+=`<polygon points="${vs.map((v,i)=>pt(i,(v||0)/100).join(',')).join(' ')}" fill="rgba(255,90,31,.35)" stroke="#ff5a1f" stroke-width="3" stroke-linejoin="round"/>`;
+ vs.forEach((v,i)=>{const [x,y]=pt(i,(v||0)/100);s+=`<circle cx="${x}" cy="${y}" r="5" fill="#ff5a1f"/>`;const [lx,ly]=pt(i,1.17),c=Math.cos(ang(i)),an=Math.abs(c)<.2?'middle':c>0?'start':'end';
+  s+=`<text x="${lx}" y="${ly+(i===0?-4:i>1&&i<4?14:4)}" text-anchor="${an}" fill="#efeee6" font-family="Archivo,Helvetica,sans-serif" font-weight="800" font-size="${sm?12:14}">${sm?KEYS[i][1].slice(0,5)+'.':KEYS[i][1]}</text><text x="${lx}" y="${ly+(i===0?-4:i>1&&i<4?14:4)+(sm?15:18)}" text-anchor="${an}" fill="#c9c08f" font-family="Archivo,Helvetica,sans-serif" font-weight="600" font-size="13">${v==null?'belum':v}</text>`});
+ rs.innerHTML=s};
+const ro=new ResizeObserver(drawRadar);ro.observe(rs);
+const update=()=>{const vs=KEYS.map(k=>avg(k[0])),done=vs.filter(v=>v!=null),m=done.length?Math.round(done.reduce((a,b)=>a+b,0)/done.length):0;
+ $('#pill').textContent='Skor '+m;
+ $('#bars').innerHTML=KEYS.map((k,i)=>`<div class="bar"><span>${k[1]}</span><div class="t"><i style="width:${vs[i]||0}%"></i></div><b>${vs[i]==null?'–':vs[i]}</b></div>`).join('');
+ const vd=!done.length?['Belum ada misi selesai','Selesaikan minimal satu simulasi untuk melihat penilaian.']:m>=85?['Siap berlayar','Teliti, cepat, dan berintegritas. Layak dipercaya mengelola keuangan operasi laut.']:m>=65?['Cakap, perlu diasah','Dasar kuat. Ulangi misi dengan nilai terendah untuk menutup celah.']:['Perlu latihan ulang','Pelajari video tiap misi, lalu ulangi simulasinya dengan tenang.'];
+ $('#verdict').textContent=vd[0];$('#vtext').textContent=done.length<5&&done.length?vd[1]+' Kompetensi terisi: '+done.length+' dari 5.':vd[1];drawRadar();onScore()};
+
+/* ===== M1: UUDP bekal awal ===== */
+const IDX=[['I','Jawa',75000,46000,42000],['II','Sumatra',83000,46000,42000],['III','Kalimantan dan Sulawesi',82000,46000,42000],['IV','Bali, NTT, dan NTB',87000,46000,42000],['V','Maluku dan Papua',97000,52000,42000]];
+$('#idxb').innerHTML=IDX.map(r=>`<tr${r[0]==='II'?' class="hl"':''}><td><b>${r[0]}</b></td><td>${r[1]}</td><td class="num">Rp${id(r[2])}</td><td class="num">Rp${id(r[3])}</td><td class="num">Rp${id(r[4])}</td></tr>`).join('');
+const RAB=[{n:'UMO Perwira Menengah',u:'OH',h:83000,pot:15,v:75,f:'3 Pamen × 25 hari'},{n:'UMO Perwira Pertama',u:'OH',h:83000,pot:5,v:275,f:'11 Pama × 25 hari'},{n:'UMO Bintara/Tamtama',u:'OH',h:83000,pot:0,v:2400,f:'96 Bintara/Tamtama × 25 hari'},{n:'TNL Perwira Menengah',u:'OH',h:46000,pot:15,v:75,f:'3 Pamen × 25 hari'},{n:'TNL Perwira Pertama',u:'OH',h:46000,pot:5,v:275,f:'11 Pama × 25 hari'},{n:'TNL Bintara/Tamtama',u:'OH',h:42000,pot:0,v:2400,f:'96 Bintara/Tamtama × 25 hari'}];
+const PAGU=350000000;let att1=0;
+$('#rab tbody').innerHTML=RAB.map((r,i)=>`<tr><td><b>${r.n}</b></td><td>${r.u}</td><td class="num">Rp${id(r.h)}</td><td class="num" id="pc${i}"><input id="p${i}" inputmode="decimal" autocomplete="off" aria-label="Potongan persen ${r.n}" placeholder="%"><span class="hint" id="ph${i}"></span></td><td class="num" id="vc${i}"><input id="v${i}" inputmode="numeric" autocomplete="off" aria-label="Volume ${r.n}" placeholder="0"><span class="hint" id="h${i}"></span></td><td class="num" id="j${i}">Rp0</td></tr>`).join('');
+const pv=i=>{const x=num($('#p'+i).value);return isFinite(x)?x:0};
+const calc1=()=>{let t=0;RAB.forEach((r,i)=>{const v=num($('#v'+i).value),j=isFinite(v)?v*r.h*(1-cl(pv(i),0,100)/100):0;t+=j;$('#j'+i).textContent='Rp'+id(j)});
+ $('#t1').textContent='Rp'+id(t);const s=PAGU-t;$('#s1').textContent=(s<0?'−Rp':'Rp')+id(Math.abs(s));$('#s1').style.color=s<0?'var(--bad)':'';
+ const m=$('#m1');m.style.width=Math.min(100,t/PAGU*100)+'%';m.style.background=t>PAGU?'var(--bad)':'var(--kh)';return t};
+RAB.forEach((_,i)=>['v','p'].forEach(k=>$('#'+k+i).addEventListener('input',()=>{$('#'+(k==='v'?'vc':'pc')+i).className='num';$('#'+(k==='v'?'h':'ph')+i).textContent='';calc1()})));
+$('#chk1').onclick=()=>{att1++;let ok=0,okp=0;RAB.forEach((r,i)=>{const raw=$('#v'+i).value.trim(),v=raw===''?NaN:num(raw),g=v===r.v,pr=$('#p'+i).value.trim().replace('%',''),gp=(pr===''?0:num(pr))===r.pot;
+  if(g&&gp)ok++;if(gp)okp++;
+  $('#vc'+i).className='num '+(g?'okc':'badc');const h=$('#h'+i);h.className='hint'+(g?' g':'');h.textContent=g?'Benar':'Dasar: '+r.f;
+  $('#pc'+i).className='num '+(gp?'okc':'badc');const ph=$('#ph'+i);ph.className='hint'+(gp?' g':'');ph.textContent=gp?'Benar':'Pamen 15%, Pama 5%, Bintara/Tamtama 0%'});
+ const t=calc1(),r=$('#r1'),sc=Math.round(ok/RAB.length*100);setC('tek','m1',sc);setC('tel','m1',sc-(att1-1)*10);
+ r.className='res '+(ok===RAB.length?'g':'b');r.textContent=ok===RAB.length?`Pengajuan benar. UUDP Rp${id(t)} setelah potongan strata, sisa otorisasi Rp${id(PAGU-t)}. Percobaan ke-${att1}.`:`${ok} dari ${RAB.length} pos benar (${okp} potongan tepat). Perbaiki kolom merah lalu periksa lagi. Ketelitian berkurang setiap pemeriksaan ulang.`;update()};
+$('#rst1').onclick=()=>{RAB.forEach((_,i)=>{['v','p'].forEach(k=>$('#'+k+i).value='');$('#vc'+i).className='num';$('#pc'+i).className='num';$('#h'+i).textContent='';$('#ph'+i).textContent=''});att1=0;$('#r1').textContent='';calc1()};
+/* ===== drill engine (M2, M5) ===== */
+function Drill(root,cfg){
+ let i,rem,res,tm,live;
+ const intro=()=>{root.innerHTML=`<p style="max-width:62ch;color:var(--mute);margin:0 0 16px">${cfg.intro}</p><button class="btn go">${cfg.start}</button>`;$('.go',root).onclick=begin};
+ const begin=()=>{i=0;rem=cfg.secs;res=[];live=true;
+  root.innerHTML=`<div class="dr-top"><div class="clock"><b class="ct">${ft(rem)}</b><span>sisa waktu</span></div><div class="dr-bar"><i></i></div><div class="dr-n">Langkah <b class="dn">1</b>/${cfg.steps.length}</div></div><div class="dr-body"></div>`;
+  tm=setInterval(()=>{rem--;$('.ct',root).textContent=ft(Math.max(0,rem));$('.clock',root).classList.toggle('hot',rem<=10);$('.dr-bar i',root).style.transform=`scaleX(${Math.max(0,rem)/cfg.secs})`;if(rem<=0)finish()},1000);show()};
+ const show=()=>{if(!live)return;if(i>=cfg.steps.length)return finish();const s=cfg.steps[i];$('.dn',root).textContent=i+1;const b=$('.dr-body',root);
+  b.innerHTML=`<div class="anim-in"><p class="dr-q">${s.q}</p>${s.ans!==undefined?`<form class="dr-in"><input inputmode="decimal" autocomplete="off" aria-label="Jawaban" placeholder="${s.ph||'Jawaban'}"><span style="color:var(--mute)">${s.unit||''}</span><button class="btn">Kirim</button></form>`:`<div class="opts${cfg.tf?' tf':''}">${s.o.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join('')}</div>`}<div class="fbw"></div></div>`;
+  if(s.ans!==undefined){const f=$('form',b),inp=$('input',b);inp.focus({preventScroll:true});f.onsubmit=e=>{e.preventDefault();const v=num(inp.value);if(!isFinite(v))return;inp.disabled=true;$('button',f).disabled=true;judge(Math.abs(v-s.ans)<=(s.tol||0))}}
+  else $$('.opt',b).forEach(o=>o.onclick=()=>{const k=+o.dataset.k,g=k===s.c;$$('.opt',b).forEach(x=>{x.disabled=true;if(+x.dataset.k===s.c)x.classList.add('g')});if(!g)o.classList.add('b');judge(g)})};
+ const judge=g=>{const s=cfg.steps[i];res.push({g,tag:s.tag});const w=$('.fbw',root);
+  if(cfg.fast){w.innerHTML=`<div class="fb ${g?'g':'b'}"><b>${g?'Tepat':'Keliru'}</b>${s.e}</div>`;i++;setTimeout(show,cfg.fast)}
+  else{w.innerHTML=`<div class="fb ${g?'g':'b'}"><b>${g?'Tepat':'Kurang tepat'}</b>${s.e}</div><button class="btn ghost" style="margin-top:12px">${i+1<cfg.steps.length?'Lanjut':'Lihat hasil'}</button>`;$('button.ghost',w).onclick=()=>{i++;show()}}};
+ const finish=()=>{if(!live)return;live=false;clearInterval(tm);while(res.length<cfg.steps.length)res.push({g:false,tag:cfg.steps[res.length].tag,to:true});
+  const out=cfg.score(res,Math.max(0,rem));update();const ok=res.filter(r=>r.g).length;
+  root.innerHTML=`<div class="anim-in"><p class="dr-q">${rem<=0?'Waktu habis.':'Simulasi selesai.'} ${ok} dari ${res.length} keputusan tepat.</p><div class="sumg">${out.map(o=>`<div><b>${o[1]}</b><span>${o[0]}</span></div>`).join('')}</div><button class="btn go">Ulangi simulasi</button></div>`;$('.go',root).onclick=begin};
+ intro();return {reset:()=>{live=false;clearInterval(tm);intro()}};
+}
+const pct=(res,tag)=>{const r=res.filter(x=>x.tag===tag);return r.length?r.filter(x=>x.g).length/r.length*100:0};
+
+const d2=Drill($('#sim2'),{secs:150,start:'Buka telegram',intro:'Hari ke-5 pelayaran. KRI membawa UUDP bekal awal untuk 110 personel selama 25 hari di Rayon II (indeks UMO Rp83.000 per orang per hari). Pangkotama mengirim telegram perubahan. Jam berjalan sejak tombol ditekan.',
+ steps:[
+ {q:'Sebelum bertolak, PP operasi A dibatalkan dan KRI menerima PP operasi B. UUDP operasi A masih di tangan Kadeplog. Apa tindakan Anda?',o:['Pakai UUDP A untuk operasi B karena sama-sama operasi','Setor kembali UUDP A per KU-42, lalu urus UUDP baru dengan dasar PP B','Simpan UUDP A sebagai cadangan kapal','Bagikan dulu ke personel sebagai uang makan'],c:1,tag:'int',e:'Menurut vademecum, UUDP satu PP tidak dapat dipakai untuk operasi lain; UUDP A disetor kembali per KU-42.'},
+ {q:'Operasi diperpanjang 15 hari menjadi 40 hari. Bekal UUDP habis pada hari ke-25. Kapan paling lambat bekal ulang diajukan?',o:['Hari ke-10 pelayaran','Hari ke-20 pelayaran','Hari ke-25, saat bekal habis','Setelah KRI kembali ke pangkalan'],c:0,tag:'tek',e:'Bekal ulang UMO dan TNL diajukan 15 hari sebelum bekal habis: 25 − 15 = hari ke-10.'},
+ {q:'Berapa tambahan UMO selama 15 hari untuk 3 Pamen, 11 Pama, dan 96 Bintara/Tamtama setelah potongan strata?',ans:135.705,tol:.01,unit:'juta rupiah',ph:'contoh 12,5',tag:'tek',e:'(3 × 15 × Rp70.550) + (11 × 15 × Rp78.850) + (96 × 15 × Rp83.000) = Rp135.705.000.'},
+ {q:'KRI sandar 2 hari di pangkalan singgah. Berapa indeks uang sandar bersih untuk seorang Perwira Menengah?',ans:63750,tol:0,unit:'rupiah',ph:'contoh 50.000',tag:'tek',e:'Rp75.000 − 15% = Rp63.750.'},
+ {q:'Agar transfer UUDP bekal ulang bisa diterima di laut, dengan siapa Anda pertama berkoordinasi?',o:['Kadep Ops, untuk rencana gerak dan pangkalan singgah, lalu laporkan posisinya ke Pasproga Satuan','Leveransir di pangkalan terdekat','Tidak perlu koordinasi, Pekas pasti tahu posisi kapal','Langsung ke Itarma'],c:0,tag:'pim',e:'Kadeplog memperkirakan pangkalan singgah dari rencana gerak Kadep Ops, lalu melapor ke Pasproga Satuan agar Pekas mentransfer ke pangkalan terdekat.'},
+ {q:'KRI akan singgah untuk bekal ulang BBM pada hari H. Kapan telegram rencana DWD dan bekal ulang BBM dikirim ke pangkalan tujuan?',o:['Selambat-lambatnya H−1','Pada hari H setelah sandar','Setelah pengisian selesai','Tidak perlu telegram, cukup PUT di pangkalan'],c:0,tag:'tek',e:'Telegram rencana DWD dan bekul BBM/BMP dikirim selambat-lambatnya H−1 agar pangkalan menyiapkan dermaga dan koordinasi dengan Pertamina.'}],
+ score:(res,rem)=>{const ok=res.filter(r=>r.g).length/res.length;const v={tek:pct(res,'tek'),int:pct(res,'int'),pim:pct(res,'pim'),cep:ok*50+rem/150*50};
+  setC('tek','m2',v.tek);setC('int','m2',v.int);setC('pim','m2',v.pim);setC('cep','m2',v.cep);return [['Teknis',Math.round(v.tek)],['Integritas',Math.round(v.int)],['Kepemimpinan',Math.round(v.pim)],['Kecepatan',Math.round(v.cep)]]}});
+
+const TF=[['Seluruh UUDP harus selesai dipertanggungjawabkan paling lambat 30 hari setelah KRI tiba di pangkalan.',0,'tek','Batas penyelesaian Wabku UUDP adalah 30 hari setelah tiba.'],
+['Sisa UUDP boleh disimpan untuk operasi berikutnya agar tidak repot mengurus lagi.',1,'int','Sisa UUDP disetor ke Pekas pada kesempatan pertama untuk mencegah duplikasi.'],
+['Lapsitkas tetap dilaporkan setiap bulan paling lambat T+5, walau KRI tidak sedang operasi.',0,'tek','Lapsitkas bulanan tetap wajib.'],
+['Operasi 25 hari dihitung 25 hari uang layar penuh.',1,'tek','Pola 2 hari layar, 1 hari sandar: 17 hari layar dan 8 hari sandar.'],
+['Personel yang batal ikut berlayar boleh tetap dimasukkan ke daftar uang layar.',1,'int','Hanya personel yang ikut berlayar sesuai Lapsitpers.'],
+['UUDP operasi A boleh dipakai untuk operasi B asal masih dalam tahun anggaran yang sama.',1,'int','Satu PP, satu UUDP. UUDP A disetor kembali per KU-42.'],
+['Uang sandar dibayar dengan indeks yang sama dengan uang layar.',1,'tek','TGM Kasal T-069/1025: uang layar Rp150.000, uang sandar Rp75.000.'],
+['Tanggal kuitansi boleh dimundurkan agar Wabku terlihat tepat waktu.',1,'int','Itu pemalsuan dokumen.'],
+['Uang layar Perwira Menengah dipotong 15%, sedangkan Bintara dan Tamtama tidak dipotong.',0,'tek','Potongan strata: Pamen 15%, Pama 5%, Bintara/Tamtama 0%.'],
+['Imbalan dari leveransir di pangkalan singgah boleh diterima karena di luar wilayah satuan.',1,'int','Gratifikasi tetap gratifikasi di mana pun.']];
+const d5=Drill($('#sim5'),{secs:60,tf:true,fast:900,start:'Mulai 60 detik',intro:'KRI sudah sandar dan batas Wabku makin dekat. Sepuluh pernyataan muncul satu per satu; jawab benar atau salah secepat mungkin.',
+ steps:TF.map(t=>({q:t[0],o:['Benar','Salah'],c:t[1],tag:t[2],e:' '+t[3]})),
+ score:(res,rem)=>{const ok=res.filter(r=>r.g).length;const v={tel:ok*10,int:pct(res,'int'),cep:ok/10*60+rem/60*40};setC('tel','m5',v.tel);setC('int','m5',v.int);setC('cep','m5',v.cep);return [['Ketepatan',ok*10],['Integritas',Math.round(v.int)],['Kecepatan',Math.round(v.cep)],['Sisa detik',rem]]}});
+
+/* ===== M5a: uang layar & sandar ===== */
+const LS=[{n:'Perwira Menengah',r:'Kolonel, Letkol, Mayor',k:3,pot:15},{n:'Perwira Pertama',r:'Kapten, Lettu, Letda',k:11,pot:5},{n:'Bintara dan Tamtama',r:'tanpa potongan',k:96,pot:0}];
+const LAY=150000,SAN=75000,OPD=25,HL=2*Math.floor(OPD/3)+Math.min(OPD%3,2),HS=Math.floor(OPD/3);let attL=0;
+$('#lst tbody').innerHTML=LS.map((r,i)=>`<tr><td><b>${r.n}</b><span class="rk">${r.r}</span></td><td class="num">${r.k}</td><td class="num" id="lc${i}"><input id="la${i}" inputmode="numeric" autocomplete="off" aria-label="Uang layar bersih ${r.n}" placeholder="Rp"><span class="hint" id="lh${i}"></span></td><td class="num" id="sc${i}"><input id="sa${i}" inputmode="numeric" autocomplete="off" aria-label="Uang sandar bersih ${r.n}" placeholder="Rp"><span class="hint" id="sh${i}"></span></td><td class="num" id="lj${i}">Rp0</td></tr>`).join('');
+const nv=k=>{const x=num($(k).value);return isFinite(x)?x:0};
+const calcL=()=>{let t=0;const hl=nv('#hl'),hs=nv('#hs');LS.forEach((r,i)=>{const j=r.k*(hl*nv('#la'+i)+hs*nv('#sa'+i));t+=j;$('#lj'+i).textContent='Rp'+id(j)});$('#tL').textContent='Rp'+id(t);return t};
+$$('#simL input').forEach(x=>x.addEventListener('input',()=>{x.parentElement.classList.remove('okc','badc');const h=x.parentElement.querySelector('.hint');if(h)h.textContent='';calcL()}));
+const mark=(inp,ok,hint,msg)=>{const c=inp.parentElement;c.classList.remove('okc','badc');c.classList.add(ok?'okc':'badc');const h=$(hint);h.className='hint'+(ok?' g':'');h.textContent=ok?'Benar':msg};
+$('#chkL').onclick=()=>{attL++;let ok=0,n=2+LS.length*2;
+ const g1=nv('#hl')===HL,g2=nv('#hs')===HS;if(g1)ok++;if(g2)ok++;mark($('#hl'),g1,'#hlh','Pola L-L-S: 8 siklus + 1 hari layar');mark($('#hs'),g2,'#hsh','1 hari sandar tiap siklus 3 hari');
+ LS.forEach((r,i)=>{const L=LAY*(1-r.pot/100),S=SAN*(1-r.pot/100),a=nv('#la'+i)===L,b=nv('#sa'+i)===S;if(a)ok++;if(b)ok++;mark($('#la'+i),a,'#lh'+i,'Rp150.000 − '+r.pot+'%');mark($('#sa'+i),b,'#sh'+i,'Rp75.000 − '+r.pot+'%')});
+ $('#days').innerHTML=Array.from({length:OPD},(_,d)=>`<i class="${d%3===2?'s':'l'}" style="--d:${d*40}ms">${d%3===2?'S':'L'}</i>`).join('');$('#days').classList.add('on');
+ const t=calcL(),sc=Math.round(ok/n*100);setC('tek','m5b',sc);setC('tel','m5b',sc-(attL-1)*10);const r=$('#rL');r.className='res '+(ok===n?'g':'b');
+ r.textContent=ok===n?`Ceklist benar: ${HL} hari layar dan ${HS} hari sandar. Total Rp${id(t)} untuk 110 personel. Percobaan ke-${attL}.`:`${ok} dari ${n} isian benar. Lihat pola hari di atas tabel, perbaiki kolom merah, lalu periksa lagi.`;update()};
+$('#rstL').onclick=()=>{$$('#simL input').forEach(x=>{x.value='';x.parentElement.classList.remove('okc','badc')});$$('#simL .hint').forEach(h=>h.textContent='');$('#days').innerHTML='';$('#days').classList.remove('on');$('#rL').textContent='';attL=0;calcL()};
+/* ===== M3: Wabku ===== */
+const DOCS=[{h:'Ceklist uang layar',f:[['Dasar','Lapsitpers 6 jam setelah DWA: 110 personel',0],['Jumlah personel diajukan','112 orang',1,'Harus sama dengan Lapsitpers: 110 orang.'],['Indeks uang layar','Rp150.000; potongan Pama 5%, Pamen 15%',0],['Mayor Fajar R. (Pamen)','Rp127.500 · ttd ✓',0],['Lettu Eko S. (Pama)','Rp150.000 · ttd ✓',1,'Pama dipotong 5%: seharusnya Rp142.500.'],['Serma Adi W.','Rp150.000 · ttd ✓',0],['Kopda Candra (tanda tangan)','',1,'Tanda tangan anggota kosong.'],['Kadeplog','ttd ✓',0],['Mengetahui Komandan KRI','',1,'Belum ditandatangani Komandan KRI.']]},
+{h:'Telegram Lapsitpers',f:[['Waktu kirim','DWA + 6 jam',0],['Kekuatan','110 personel (98 organik, 12 non organik)',0],['Disetujui','Komandan KRI, ttd ✓',0],['Saluran','SRAL ke Pangkotama',0]]},
+{h:'Nota bahan basah · pangkalan singgah',f:[['Penerbit','UD Bahari Segar (leveransir)',0],['Rincian','Ikan segar 120 kg × Rp45.000',0],['Total','Rp5.600.000',1,'120 × 45.000 = Rp5.400.000.'],['Legalisir','Dilegalisir Ka Satker ✓',0],['Diterima','Tim penerima barang, ttd ✓',0]]}];
+let fid=0;const FL=[];
+$('#docs').innerHTML=DOCS.map(d=>`<div class="paper"><h4>${d.h}</h4>${d.f.map(f=>{const k=fid++;FL.push(f);return `<span class="l">${f[0]}</span><button class="fld" data-f="${k}" aria-pressed="false">${f[1]?f[1]:'<span class="sig"></span>'}<span class="why"></span></button>`}).join('')}</div>`).join('');
+let done3=false;
+const cnt3=()=>$('#c3').textContent=$$('.fld.on').length+' bagian ditandai';
+$$('.fld').forEach(b=>b.onclick=()=>{if(done3)return;b.classList.toggle('on');b.setAttribute('aria-pressed',b.classList.contains('on'));cnt3()});
+$('#chk3').onclick=()=>{if(done3)return;done3=true;let hit=0,fp=0;$$('.fld').forEach(b=>{const f=FL[+b.dataset.f],on=b.classList.contains('on');b.classList.remove('on');
+ if(f[2]){b.classList.add(on?'hit':'miss');$('.why',b).textContent=f[3];if(on)hit++}else if(on){b.classList.add('fp');fp++}});
+ setC('tel','m3',hit*20-fp*10);setC('tek','m3',hit*20);const r=$('#r3');r.className='res '+(hit===5&&!fp?'g':'b');
+ r.textContent=`${hit} dari 5 kesalahan ditemukan${fp?`, ${fp} tanda keliru pada bagian yang sebenarnya benar`:''}. Hijau: ditemukan, merah: terlewat, coret: salah tandai.`;update()};
+$('#rst3').onclick=()=>{done3=false;$$('.fld').forEach(b=>{b.className='fld';b.setAttribute('aria-pressed','false');$('.why',b).textContent=''});$('#r3').textContent='';cnt3()};
+
+/* ===== M4: koordinasi ===== */
+const DLG=[
+{w:'Komandan KRI · DWA + 6 jam',m:'Kadeplog, sudah enam jam sejak lepas sandar. Ada yang perlu saya tandatangani?',o:[
+ ['Siap, konsep telegram Lapsitpers kekuatan personel yang ikut berlayar. Setelah Komandan tanda tangan, saya serahkan ke Komunikasi untuk dikirim per SRAL.',100,90,'Bagus, bawa ke sini.','Tepat waktu dan sesuai jalur. Formulir berita ini nanti jadi kelengkapan Wabku UUDP.'],
+ ['Belum ada, Komandan. Laporan personel kita kirim setelah kembali.',20,50,'Kamu yakin?','Lapsitpers dibuat 6 jam setelah DWA. Terlambat berarti data uang layar dan Wabku lemah.'],
+ ['Saya kirim saja tanpa tanda tangan supaya cepat.',40,30,'Itu bukan wewenangmu.','Lapsitpers dikirim setelah disetujui dan ditandatangani Komandan.']]},
+{w:'Bottlier',m:'Pak, leveransir sudah antar bahan basah. Langsung saya masukkan gudang ya?',o:[
+ ['Tunggu. Tim penerima barang yang ditunjuk Komandan periksa kualitas dan jumlahnya dulu, baru dicatat di jurnal penerimaan.',100,100,'Siap, saya panggil timnya.','Sesuai prosedur: diperiksa tim penerima, lalu jurnal, lalu gudang sesuai karakteristik barang.'],
+ ['Ya, masukkan saja, kita sudah langganan.',30,30,'Siap.','Tanpa pemeriksaan, kekurangan jumlah atau mutu tidak bisa dipertanggungjawabkan.'],
+ ['Kamu cek sendiri saja, saya sibuk.',40,60,'Baik, Pak.','Pemeriksaan dilakukan tim yang ditunjuk Komandan, bukan satu orang.']]},
+{w:'Kadep Ops',m:'Rencana gerak berubah. Kita tidak singgah di Lantamal yang direncanakan, tapi di pangkalan lain tiga hari lagi.',o:[
+ ['Siap, terima kasih. Saya laporkan posisi bekul yang baru ke Pasproga Satuan hari ini agar Pekas mentransfer UUDP ke pangkalan itu.',100,90,'Oke, saya kirim titik koordinatnya.','Informasi rencana gerak langsung diteruskan; dana bekul tiba di tempat kapal singgah.'],
+ ['Nanti saja saya kabari Satuan setelah kita sandar.',30,60,'Bisa terlambat lho.','Pekas butuh posisi sebelumnya untuk transfer ke pangkalan terdekat.'],
+ ['Itu urusan Ops, bukan logistik.',10,60,'Lalu dana bekulnya bagaimana?','Kadeplog wajib mengetahui rencana gerak untuk memperkirakan lokasi penerimaan dana.']]},
+{w:'Leveransir · pangkalan singgah',m:'Pak, kalau belanja bekal ulang lewat kami, ada uang terima kasih 5% untuk Bapak. Aman, kita di luar wilayah.',o:[
+ ['Saya tolak. Pesan ini saya simpan dan laporkan ke Komandan.',90,100,'Maaf Pak, saya tarik kembali.','Tolak tegas, simpan bukti, laporkan. Lokasi tidak mengubah status gratifikasi.'],
+ ['Tidak saya balas sama sekali.',40,60,'Pak? Tawarannya masih berlaku.','Mendiamkan tidak menghentikan upaya gratifikasi; laporkan.'],
+ ['Boleh, asal tidak ketahuan.',0,0,'Siap Pak, nanti saya atur.','Menerima gratifikasi adalah pelanggaran berat.']]},
+{w:'Telegram KRI lain',m:'KRI tetangga dalam keadaan darurat dan meminta suku cadang pompa yang kebetulan kita punya.',o:[
+ ['Cek kartu persediaan dulu. Bila ada, saya lapor Komandan minta persetujuan, lalu siapkan formulir PUS yang ditandatangani Komandan.',100,90,'Siap, kami tunggu.','Ini Prosedur D-10: stok dicek, Komandan memutuskan, PUS ditandatangani kedua pihak, transaksi dicatat di kartu persediaan.'],
+ ['Langsung kirim saja, sesama kapal harus saling bantu.',40,40,'Terima kasih!','Niatnya baik, tetapi tanpa persetujuan Komandan dan PUS, barang keluar tanpa dasar.'],
+ ['Tolak, itu bukan kapal kita.',20,60,'Kami tidak bisa bergerak tanpa itu.','Prosedur D-10 justru mengatur bantuan antarkapal dalam keadaan darurat.']]}];
+let ci4=0,sc4=[];const chat=$('#chat'),cops=$('#cops');
+const add=(cls,who,txt)=>{const d=document.createElement('div');d.className='msg '+cls;d.innerHTML=(who?`<small>${who}</small>`:'')+txt;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d};
+const nextD=()=>{cops.innerHTML='';if(ci4>=DLG.length)return end4();const s=DLG[ci4];const ty=add('them',s.w,'<span class="typing"><i></i><i></i><i></i></span>');
+ setTimeout(()=>{ty.innerHTML=`<small>${s.w}</small>${s.m}`;cops.innerHTML=s.o.map((o,k)=>`<button class="opt" data-k="${k}">${o[0]}</button>`).join('');
+  $$('.opt',cops).forEach(b=>b.onclick=()=>{const o=s.o[+b.dataset.k];cops.innerHTML='';sc4.push(o);add('me','Kadeplog',o[0]);
+   setTimeout(()=>{add('them',s.w,o[3]);add('sys','',`<b style="color:${o[1]>=80?'var(--ok)':'var(--bad)'}">Dampak:</b> ${o[4]}`);ci4++;setTimeout(nextD,700)},650)})},RM?0:800)};
+const end4=()=>{const p=Math.round(sc4.reduce((a,o)=>a+o[1],0)/sc4.length),n=Math.round(sc4.reduce((a,o)=>a+o[2],0)/sc4.length);setC('pim','m4',p);setC('int','m4',n);update();
+ add('sys','',`<b>Koordinasi selesai.</b> Kepemimpinan ${p} · Integritas ${n}`);cops.innerHTML='<button class="btn" id="rep4">Ulangi situasi</button>';$('#rep4').onclick=start4};
+const start4=()=>{ci4=0;sc4=[];chat.innerHTML='';add('sys','','Anda bertugas sebagai Kadeplog KRI. Operasi laut 25 hari, 110 personel.');nextD()};
+let s4=false;new IntersectionObserver((es,ob)=>{if(es[0].isIntersecting&&!s4){s4=true;start4();ob.disconnect()}},{threshold:.4}).observe($('#chat'));
+
+$('#resetAll').onclick=()=>{resetComp();$('#rst1').click();$('#rstL').click();$('#rst3').click();d2.reset();d5.reset();if(s4)start4();update();document.getElementById('misi-persiapan').scrollIntoView({behavior:RM?'auto':'smooth'})};
+calc1();update();
+}
+</script>
+<script>if('serviceWorker' in navigator&&location.protocol.startsWith('http')){addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}</script>
+</body>
+</html>
